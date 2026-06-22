@@ -25,7 +25,7 @@ export const services = [
     tag: "Workflow",
     title: "RoadMatcher",
     description: "A framework designed to compare OSM and Microsoft RoadDetections datasets in Surabaya. By preprocessing road data and applying topological logic and geometric descriptors, the framework identifies differences between the two sources and finds gaps in mapped road networks.",
-    imageUrl: "./data/images/ROADMATCHER.webp",
+    imageUrl: "./data/images/RoadMatcher.webp",
     imageAlt: "RoadMatcher-Telemetry",
     legend: {
       type: "discrete",
