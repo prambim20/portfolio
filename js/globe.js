@@ -1,7 +1,7 @@
 /**
  * Holographic Dot-Matrix 2D Globe Engine
- * Optimized to remove high-frequency DOM read-recalculations (getComputedStyle)
- * from the paint/render loops. Accepts reactive theme injections via app.js
+ * Optimized with Canvas draw-call batching and an active IntersectionObserver to
+ * prevent background CPU thread consumption when scrolled away.
  */
 export class GlobeEngine {
   constructor(canvasId) {
@@ -16,7 +16,6 @@ export class GlobeEngine {
     this.tiltZ = -0.15;
     this.tiltX = 0.28;
 
-    // Cache computed styles natively to prevent rendering bottlenecks (reflows)
     this.glowColor = '#00f0ff';
     this.accentColor = '#3b82f6';
 
@@ -29,17 +28,32 @@ export class GlobeEngine {
       [[0, -70], [90, -75], [180, -70], [-90, -75]]
     ];
 
+    this.isIntersecting = true;
+    this.animationFrameId = null;
+
     this.precomputeHolographicLand();
     this.initSizing();
+    this.setupIntersectionObserver();
     this.startLoop();
   }
 
-  /**
-   * Safe, reactive method to update theme variables directly from orchestrator
-   */
   setThemeColors(glow, accent) {
     if (glow) this.glowColor = glow;
     if (accent) this.accentColor = accent;
+  }
+
+  setupIntersectionObserver() {
+    if (!window.IntersectionObserver) return;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        this.isIntersecting = entry.isIntersecting;
+        if (this.isIntersecting && !this.animationFrameId) {
+          this.startLoop();
+        }
+      });
+    }, { threshold: 0.05 });
+    
+    observer.observe(this.canvas);
   }
 
   isPointInPolygon(point, polygon) {
@@ -177,53 +191,52 @@ export class GlobeEngine {
     this.rotationY += this.rotationSpeed;
   }
 
+  /**
+   * Optimized to batch segmented elements into single structural strokes.
+   * Decreased segments to 24, dropping performance footprint from 640 to 16 strokes.
+   */
   drawGridLine(angle, glowColor, isLongitude) {
-    const segments = 40;
+    const segments = 24; 
     this.ctx.lineWidth = 0.8;
+    this.ctx.strokeStyle = `${glowColor}15`; 
 
-    for (let i = 0; i < segments; i++) {
-      const step1 = (i * Math.PI * 2) / segments;
-      const step2 = ((i + 1) * Math.PI * 2) / segments;
-
-      let pt1, pt2;
+    this.ctx.beginPath();
+    for (let i = 0; i <= segments; i++) {
+      const step = (i * Math.PI * 2) / segments;
+      let pt;
 
       if (isLongitude) {
-        pt1 = { x: Math.sin(step1) * Math.sin(angle), y: Math.cos(step1), z: Math.sin(step1) * Math.cos(angle) };
-        pt2 = { x: Math.sin(step2) * Math.sin(angle), y: Math.cos(step2), z: Math.sin(step2) * Math.cos(angle) };
+        pt = { x: Math.sin(step) * Math.sin(angle), y: Math.cos(step), z: Math.sin(step) * Math.cos(angle) };
       } else {
         const latRadius = Math.cos(angle);
         const latY = Math.sin(angle);
-        pt1 = { x: latRadius * Math.sin(step1), y: latY, z: latRadius * Math.cos(step1) };
-        pt2 = { x: latRadius * Math.sin(step2), y: latY, z: latRadius * Math.cos(step2) };
+        pt = { x: latRadius * Math.sin(step), y: latY, z: latRadius * Math.cos(step) };
       }
 
-      const p1 = this.project(pt1.x, pt1.y, pt1.z);
-      const p2 = this.project(pt2.x, pt2.y, pt2.z);
-
-      const averageDepth = (p1.depthZ + p2.depthZ) / 2;
-      
-      let gridAlpha = 0.02; 
-      if (averageDepth > -0.2) {
-        gridAlpha = Math.min(0.12, 0.02 + (averageDepth + 0.2) * 0.25);
+      const p = this.project(pt.x, pt.y, pt.z);
+      if (i === 0) {
+        this.ctx.moveTo(p.screenX, p.screenY);
+      } else {
+        this.ctx.lineTo(p.screenX, p.screenY);
       }
-
-      this.ctx.globalAlpha = gridAlpha;
-      this.ctx.strokeStyle = glowColor;
-
-      this.ctx.beginPath();
-      this.ctx.moveTo(p1.screenX, p1.screenY);
-      this.ctx.lineTo(p2.screenX, p2.screenY);
-      this.ctx.stroke();
     }
-    
-    this.ctx.globalAlpha = 1.0;
+    this.ctx.stroke();
   }
 
   startLoop() {
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+    }
+    
     const tick = () => {
+      if (!this.isIntersecting) {
+        this.animationFrameId = null;
+        return;
+      }
       this.draw();
-      requestAnimationFrame(tick);
+      this.animationFrameId = requestAnimationFrame(tick);
     };
-    requestAnimationFrame(tick);
+    
+    this.animationFrameId = requestAnimationFrame(tick);
   }
 }

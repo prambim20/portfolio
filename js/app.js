@@ -2,18 +2,14 @@ import { projects, services, publications, capabilities } from './data.js';
 import { MapEngine } from './map.js';
 import { GlobeEngine } from './globe.js';
 
-// Module scope tracking variables to prevent collision
 let globeInstance = null;
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. Populate dynamic HTML templates first so layout boundaries are structurally fully expanded
   initHeroStats();
   initStaticShowcase();
   initInteractiveShowcase();
   initPublications();
   initOther();
-
-  // 2. Initialize scrolling physics and coordinate mapping once container heights are fully stable
   initPageThemeEngine();
   initHeroGlobe();
 });
@@ -36,7 +32,6 @@ function initPageThemeEngine() {
   let sectionOffsets = [];
   let activeSectionId = '';
 
-  // Cache offsets safely without causing real-time thrashing during frame rendering
   const cacheOffsets = () => {
     sectionOffsets = Array.from(sections).map(section => {
       const rect = section.getBoundingClientRect();
@@ -51,7 +46,6 @@ function initPageThemeEngine() {
   const updateActiveSection = () => {
     if (sectionOffsets.length === 0) return;
     
-    // Midpoint trigger: 40% down the viewport height
     const scrollPosition = window.scrollY + window.innerHeight * 0.4;
     let currentId = sectionOffsets[0].id;
 
@@ -81,24 +75,20 @@ function initPageThemeEngine() {
     }
   };
 
-  // Perform initial caching after basic setup has completed
   cacheOffsets();
   updateActiveSection();
 
-  // Re-cache sizes once all remote layout assets (images, web fonts) are fully loaded
   window.addEventListener('load', cacheOffsets, { passive: true });
   window.addEventListener('resize', cacheOffsets, { passive: true });
 
-  // Dynamically watch structural updates to automatically re-sync heights
   if (window.ResizeObserver) {
     const resizeObserver = new ResizeObserver(() => {
       cacheOffsets();
       updateActiveSection();
     });
-    sections.forEach(section => resizeObserver.observe(section));
+    resizeObserver.observe(document.body);
   }
 
-  // Throttled high-performance scroll callback
   let isScrolling = false;
   window.addEventListener('scroll', () => {
     if (!isScrolling) {
@@ -110,7 +100,6 @@ function initPageThemeEngine() {
     }
   }, { passive: true });
 
-  // Mobile menu toggle logic
   const navToggle = document.querySelector('.nav-toggle');
   const navLinksContainer = document.querySelector('.nav-links');
 
@@ -162,7 +151,6 @@ function initStaticShowcase() {
 
   if (!workContainer || !Array.isArray(services)) return;
 
-  // 1. Generate & Inject Filter Pills dynamically
   const filterWrapper = document.createElement('div');
   filterWrapper.className = 'work-filters-container';
   
@@ -178,7 +166,21 @@ function initStaticShowcase() {
   `;
   workSection.querySelector('.container').insertBefore(filterWrapper, workContainer);
 
+  const seeMoreContainer = document.createElement('div');
+  seeMoreContainer.className = 'see-more-container';
+  const seeMoreBtn = document.createElement('button');
+  seeMoreBtn.className = 'btn-see-more';
+  seeMoreContainer.appendChild(seeMoreBtn);
+  workSection.querySelector('.container').appendChild(seeMoreContainer);
+
   let currentFilter = 'All';
+  let isSeeMoreExpanded = false;
+  const INITIAL_LIMIT = 6;
+
+  const isCardVisible = (card) => {
+    if (card.classList.contains('filtered-out')) return false;
+    return !card.classList.contains('limit-hidden') || window.innerWidth <= 768;
+  };
 
   const buildWorkLegend = (legend) => {
     if (!legend) return '';
@@ -217,13 +219,52 @@ function initStaticShowcase() {
 
   const updateRevealButtonText = () => {
     if (!revealAllBtn) return;
-    const visibleCards = Array.from(workContainer.querySelectorAll('.work-card')).filter(card => !card.classList.contains('hidden'));
+    const visibleCards = Array.from(workContainer.querySelectorAll('.work-card')).filter(isCardVisible);
     const allAreExpanded = visibleCards.every(card => card.classList.contains('expanded'));
     revealAllBtn.textContent = allAreExpanded ? 'Collapse All Images' : 'Reveal All Images';
   };
 
-  // 2. Render initial cards
+  const renderCatalog = () => {
+    const cards = Array.from(workContainer.querySelectorAll('.work-card'));
+    const matchingCards = [];
+
+    cards.forEach(card => {
+      const matches = currentFilter === 'All' || card.getAttribute('data-tag') === currentFilter;
+      if (matches) {
+        card.classList.remove('filtered-out');
+        matchingCards.push(card);
+      } else {
+        card.classList.add('filtered-out');
+      }
+      card.classList.remove('limit-hidden');
+    });
+
+    const showCount = isSeeMoreExpanded ? matchingCards.length : Math.min(INITIAL_LIMIT, matchingCards.length);
+    for (let i = showCount; i < matchingCards.length; i++) {
+      matchingCards[i].classList.add('limit-hidden');
+    }
+
+    if (matchingCards.length > INITIAL_LIMIT) {
+      seeMoreContainer.style.display = 'flex';
+      seeMoreBtn.innerHTML = isSeeMoreExpanded 
+        ? `Show Less 
+           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+             <polyline points="18 15 12 9 6 15"></polyline>
+           </svg>`
+        : `See More Outputs 
+           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+             <polyline points="6 9 12 15 18 9"></polyline>
+           </svg>`;
+    } else {
+      seeMoreContainer.style.display = 'none';
+    }
+
+    updateRevealButtonText();
+  };
+
   workContainer.innerHTML = '';
+  const fragment = document.createDocumentFragment();
+
   services.forEach(service => {
     const card = document.createElement('div');
     card.className = 'work-card';
@@ -249,22 +290,11 @@ function initStaticShowcase() {
       updateRevealButtonText();
     });
 
-    workContainer.appendChild(card);
+    fragment.appendChild(card);
   });
 
-  // 3. Filtering & Rendering Engine
-  const renderCatalog = () => {
-    const cards = workContainer.querySelectorAll('.work-card');
-    
-    cards.forEach(card => {
-      const matchesFilter = currentFilter === 'All' || card.getAttribute('data-tag') === currentFilter;
-      card.classList.toggle('hidden', !matchesFilter);
-    });
+  workContainer.appendChild(fragment);
 
-    updateRevealButtonText();
-  };
-
-  // 4. Setup Action Listeners
   filterWrapper.addEventListener('click', (e) => {
     const btn = e.target.closest('.filter-btn');
     if (!btn) return;
@@ -273,16 +303,23 @@ function initStaticShowcase() {
     btn.classList.add('active');
 
     currentFilter = btn.getAttribute('data-filter');
-    
-    // Smoothly reset horizontal scroll to starting position on tab shifts
+    isSeeMoreExpanded = false;
     workContainer.scrollTo({ left: 0, behavior: 'smooth' });
-    
     renderCatalog();
+  });
+
+  seeMoreBtn.addEventListener('click', () => {
+    isSeeMoreExpanded = !isSeeMoreExpanded;
+    renderCatalog();
+
+    if (!isSeeMoreExpanded) {
+      workSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   });
 
   if (revealAllBtn) {
     revealAllBtn.addEventListener('click', () => {
-      const visibleCards = Array.from(workContainer.querySelectorAll('.work-card')).filter(card => !card.classList.contains('hidden'));
+      const visibleCards = Array.from(workContainer.querySelectorAll('.work-card')).filter(isCardVisible);
       const hasCollapsedCard = visibleCards.some(card => !card.classList.contains('expanded'));
 
       visibleCards.forEach(card => {
@@ -292,6 +329,10 @@ function initStaticShowcase() {
       updateRevealButtonText();
     });
   }
+
+  window.addEventListener('resize', () => {
+    renderCatalog();
+  }, { passive: true });
 
   renderCatalog();
 }
@@ -390,6 +431,7 @@ function initPublications() {
 
       if (isExpanded) {
         card.classList.remove('expanded');
+        // Apply line-clamping truncation only after style transitions have concluded
         card._transitionTimeout = setTimeout(() => {
           if (!card.classList.contains('expanded')) {
             card.classList.add('clamped');

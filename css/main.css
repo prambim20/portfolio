@@ -1,19 +1,22 @@
 /* ==========================================================================
-   ALPHA EARTH FOUNDATIONS - DESIGN SYSTEM & SYSTEM VARIABLES
+   1. CORE DESIGN SYSTEM & CUSTOM PROPERTIES
    ========================================================================== */
 :root {
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   
+  /* Primary Theme Color Palette */
   --page-bg: #060913;
   --glow-color: #00f0ff;
   --accent: #3b82f6;
   
+  /* Text and Interface Accents */
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
   --border-glow: rgba(255, 255, 255, 0.06);
   --nav-height: 70px;
 
+  /* Global Animations and Transitions */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --trans-bg: background-color 1.4s var(--ease-out);
   --trans-theme: 1.4s var(--ease-out);
@@ -22,7 +25,7 @@
 }
 
 /* ==========================================================================
-   BASE & SYSTEM RESET
+   2. RESET & BASE HTML ELEMENT STYLING
    ========================================================================== */
 * {
   box-sizing: border-box;
@@ -46,7 +49,7 @@ body {
 }
 
 /* ==========================================================================
-   DYNAMIC ATMOSPHERIC BACKDROPS
+   3. ATMOSPHERIC GRAPHICAL BACKDROPS
    ========================================================================== */
 .grid-backdrop,
 .vignette,
@@ -54,13 +57,15 @@ body {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  /* Promote to composite layers to prevent heavy scroll repaints */
+  /* Promote to composite layers to prevent scroll-linked repaints */
   will-change: transform;
   transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
 
+/* Background overlay grid pattern */
 .grid-backdrop {
-  z-index: -2;
+  z-index: -3;
   background-size: 80px 80px;
   background-image: 
     linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
@@ -68,33 +73,23 @@ body {
   opacity: 0.85;
 }
 
+/* Vignette border contrast overlay */
 .vignette {
   z-index: -1;
   background: radial-gradient(circle at center, transparent 35%, rgba(0, 0, 0, 0.75) 100%);
 }
 
+/* Hardware-accelerated glow gradient; avoids heavy CPU blur operations */
 .glow-backdrop {
   z-index: -2;
-  filter: blur(140px);
-  opacity: 0.3;
-  transition: opacity var(--trans-theme);
-  will-change: opacity;
-}
-
-.glow-source {
-  position: absolute;
-  top: 55%;
-  left: 50%;
-  width: 55vw;
-  height: 55vw;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  background: var(--glow-color);
-  transition: background var(--trans-theme);
+  opacity: 0.12;
+  background: radial-gradient(circle at 50% 55%, var(--glow-color) 0%, transparent 60%);
+  transition: opacity var(--trans-theme), background var(--trans-theme);
+  will-change: background, opacity;
 }
 
 /* ==========================================================================
-   TYPOGRAPHY & GLOBAL LAYOUT UTILITIES
+   4. TYPOGRAPHY, CORE CONTAINERS & UTILITY BUTTONS
    ========================================================================== */
 h1, h2, h3, h4 {
   font-weight: 700;
@@ -138,17 +133,19 @@ p {
 }
 
 /* ==========================================================================
-   NAVIGATION BAR
+   5. NAVIGATION BAR & MOBILE TRIGGER TOGGLE
    ========================================================================== */
 .navbar {
   position: fixed;
   inset: 0 0 auto 0;
   height: var(--nav-height);
-  background: rgba(6, 9, 19, 0.6);
+  background: rgba(6, 9, 19, 0.75);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   z-index: 1000;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
 }
 
 .navbar-inner {
@@ -233,7 +230,7 @@ p {
 }
 
 /* ==========================================================================
-   GENERIC SECTIONS
+   6. GENERIC SECTION ARCHITECTURE
    ========================================================================== */
 section {
   position: relative;
@@ -275,7 +272,7 @@ section {
 }
 
 /* ==========================================================================
-   HERO SECTION
+   7. HERO LANDING PLATFORM (TEXT, STATISTICS & GLOBE WRAPPER)
    ========================================================================== */
 .hero-grid {
   display: grid;
@@ -369,9 +366,6 @@ section {
   transition: color var(--trans-fast);
 }
 
-/* ==========================================================================
-   HOLOGRAPHIC GLOBE WRAPPER (HERO GRAPHIC)
-   ========================================================================== */
 .globe-wireframe {
   position: relative;
   display: flex;
@@ -388,11 +382,10 @@ section {
 
 #globe-canvas {
   display: block;
-  /* Removed CSS filter drop-shadow to fix massive scroll stuttering/lag; glow is natively drawn inside the canvas */
 }
 
 /* ==========================================================================
-   STATIC WORK SHOWCASE CATALOG
+   8. STATIC WORK CATALOG (GRID, FILTERS, LEAF CARDS & LEGENDS)
    ========================================================================== */
 .work-section {
   border-top: 1px solid var(--border-glow);
@@ -451,11 +444,44 @@ section {
   cursor: pointer;
 }
 
-.work-card.hidden {
+/* Display States for Filtering and Desktop Limits */
+.work-card.filtered-out {
   display: none !important;
 }
 
-/* Core collapsed metrics (Global Setup) */
+.work-card.limit-hidden {
+  display: none !important;
+}
+
+/* Desktop Expandable See More/Less Controls */
+.see-more-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 3.5rem;
+  width: 100%;
+}
+
+.btn-see-more {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-primary);
+  padding: 0.85rem 2.25rem;
+  border-radius: 30px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.90rem;
+  cursor: pointer;
+  transition: all var(--trans-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.btn-see-more svg {
+  transition: transform var(--trans-fast);
+}
+
+/* Card Visual Media and Overlays */
 .work-img-wrapper {
   position: relative;
   height: 0;
@@ -518,6 +544,7 @@ section {
   text-align: justify;
 }
 
+/* Interactive Card Legend Systems */
 .work-legend {
   max-height: 0;
   opacity: 0;
@@ -532,7 +559,7 @@ section {
               border-color 0.45s var(--ease-out);
 }
 
-/* Explicit Global State triggers for JS (Double-Tap safe) */
+/* Double-Tap / Active expanded structures */
 .work-card.expanded .work-img-wrapper {
   height: 180px !important;
   border-bottom-color: rgba(255, 255, 255, 0.05);
@@ -551,6 +578,7 @@ section {
   border-top-color: rgba(255, 255, 255, 0.05);
 }
 
+/* Continuous gradient legends */
 .work-legend-continuous {
   display: flex;
   flex-direction: column;
@@ -574,6 +602,7 @@ section {
   color: var(--text-secondary);
 }
 
+/* Discrete itemized legends */
 .work-legend-discrete {
   display: flex;
   flex-wrap: wrap;
@@ -597,92 +626,7 @@ section {
 }
 
 /* ==========================================================================
-   PUBLICATION GRID
-   ========================================================================== */
-.publication-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-  width: 100%;
-}
-
-.publication-card {
-  padding: 2.5rem;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--border-glow);
-  border-radius: 12px;
-  transition: transform var(--trans-fast), border-color var(--trans-fast);
-  display: flex;
-  flex-direction: column;
-  cursor: pointer;
-}
-
-.publication-card .num {
-  display: block;
-  margin-bottom: 1.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  color: var(--glow-color);
-  transition: color var(--trans-theme);
-}
-
-.publication-card h3 {
-  font-size: 1.2rem;
-  line-height: 1.4;
-  margin-bottom: 0.85rem;
-  color: var(--text-primary);
-  max-height: 2.8em;
-  overflow: hidden;
-  display: block;
-  transition: max-height 0.4s var(--ease-out), color var(--trans-fast);
-}
-
-.publication-card.clamped h3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  text-overflow: ellipsis;
-}
-
-.publication-card.expanded h3 {
-  max-height: 12em;
-}
-
-.publication-publisher {
-  display: block;
-  font-family: var(--font-sans);
-  font-size: 0.78rem;
-  font-weight: 500;
-  font-style: italic;
-  color: var(--text-secondary);
-  opacity: 0.8;
-  margin-top: -0.5rem;
-  margin-bottom: 1rem;
-  line-height: 1.4;
-}
-
-.publication-link {
-  display: inline-flex;
-  align-items: center;
-  align-self: flex-start;
-  gap: 0.35rem;
-  margin-top: auto;
-  padding-top: 1.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 500;
-  color: var(--glow-color);
-  text-decoration: none;
-  transition: opacity var(--trans-fast);
-}
-
-.publication-link svg {
-  transition: transform var(--trans-fast);
-}
-
-/* ==========================================================================
-   INTERACTIVE MAP WORKSPACE (SHOWCASE)
+   9. INTERACTIVE SHOWCASE DEPLOYMENTS (MAP, SELECTION LISTS, SWIPE, HUD)
    ========================================================================== */
 .showcase-wrapper {
   display: grid;
@@ -773,9 +717,7 @@ section {
   box-shadow: 0 0 10px rgba(0, 240, 255, 0.03);
 }
 
-/* ==========================================================================
-   MAP WRAPPER & CANVAS (LEAFLET INTERFACES)
-   ========================================================================== */
+/* Leaflet GIS Viewer Integration */
 .map-frame {
   position: relative;
   background: #030508;
@@ -792,6 +734,7 @@ section {
   z-index: 10;
 }
 
+/* Spatial telemetry data HUD overlays */
 .map-overlay-hud {
   position: absolute;
   bottom: 20px;
@@ -830,10 +773,59 @@ section {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6) !important;
 }
 
-.leaflet-interactive {
-  transition: filter var(--trans-fast), stroke-width var(--trans-fast);
+/* Layer Swipe Comparison Controls */
+.map-swipe-container {
+  position: absolute;
+  inset: 0;
+  z-index: 990; 
+  pointer-events: none; 
 }
 
+.map-swipe-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--glow-color);
+  box-shadow: 0 0 10px var(--glow-color);
+  pointer-events: auto; 
+  cursor: ew-resize;
+  transition: background-color var(--trans-fast);
+}
+
+.map-swipe-line::after {
+  content: '';
+  position: absolute;
+  inset: 0 -12px;
+  background: transparent;
+}
+
+.map-swipe-handle {
+  position: absolute;
+  top: 50%;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(6, 9, 19, 0.95);
+  border: 2px solid var(--glow-color);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  pointer-events: auto; 
+  cursor: ew-resize;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+/* Map legend workspace overlays */
 .map-legend-wrapper {
   position: absolute;
   bottom: 20px;
@@ -915,66 +907,93 @@ section {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- Interactive Swipe Comparison Controls --- */
-.map-swipe-container {
-  position: absolute;
-  inset: 0;
-  z-index: 990; 
-  pointer-events: none; 
+/* ==========================================================================
+   10. SCIENTIFIC PUBLICATIONS DISCOVERY DECK
+   ========================================================================== */
+.publication-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  width: 100%;
 }
 
-.map-swipe-line {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: var(--glow-color);
-  box-shadow: 0 0 10px var(--glow-color);
-  pointer-events: auto; 
-  cursor: ew-resize;
-  transition: background-color var(--trans-fast);
-}
-
-.map-swipe-line::after {
-  content: '';
-  position: absolute;
-  inset: 0 -12px;
-  background: transparent;
-}
-
-.map-swipe-handle {
-  position: absolute;
-  top: 50%;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(6, 9, 19, 0.95);
-  border: 2px solid var(--glow-color);
-  box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+.publication-card {
+  padding: 2.5rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-glow);
+  border-radius: 12px;
+  transition: transform var(--trans-fast), border-color var(--trans-fast);
   display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-primary);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  pointer-events: auto; 
-  cursor: ew-resize;
-  user-select: none;
-  -webkit-user-select: none;
+  flex-direction: column;
+  cursor: pointer;
 }
 
-.map-swipe-line,
-.map-swipe-handle {
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
+.publication-card .num {
+  display: block;
+  margin-bottom: 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--glow-color);
+  transition: color var(--trans-theme);
+}
+
+.publication-card h3 {
+  font-size: 1.2rem;
+  line-height: 1.4;
+  margin-bottom: 0.85rem;
+  color: var(--text-primary);
+  max-height: 2.8em;
+  overflow: hidden;
+  display: block;
+  transition: max-height 0.4s var(--ease-out), color var(--trans-fast);
+}
+
+.publication-card.clamped h3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+}
+
+.publication-card.expanded h3 {
+  max-height: 12em;
+}
+
+.publication-publisher {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 500;
+  font-style: italic;
+  color: var(--text-secondary);
+  opacity: 0.8;
+  margin-top: -0.5rem;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.publication-link {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 0.35rem;
+  margin-top: auto;
+  padding-top: 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--glow-color);
+  text-decoration: none;
+  transition: opacity var(--trans-fast);
+}
+
+.publication-link svg {
+  transition: transform var(--trans-fast);
 }
 
 /* ==========================================================================
-   DYNAMIC HORIZONTAL SKILLS TREE
+   11. DYNAMIC SKILLS TREE BRANCHES & CONNECTING NODES
    ========================================================================== */
 .skills-tree-wrapper {
   display: grid;
@@ -1086,7 +1105,7 @@ section {
 }
 
 /* ==========================================================================
-   THIRD PARTY MODULE OVERRIDES (LEAFLET CONTROLS)
+   12. THIRD-PARTY GIS MODULE STYLING OVERRIDES (LEAFLET UI)
    ========================================================================== */
 .leaflet-bar {
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -1101,7 +1120,7 @@ section {
 }
 
 /* ==========================================================================
-   TRUE HOVER-ONLY STATES (MOUSE SYSTEMS ONLY)
+   13. DESKTOP-ONLY HOVER STYLES & HAPTIC FEEDBACK (MOUSE SYSTEMS)
    ========================================================================== */
 @media (hover: hover) {
   .btn-primary:hover {
@@ -1151,6 +1170,13 @@ section {
     border-top-color: rgba(255, 255, 255, 0.05);
   }
 
+  .btn-see-more:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--glow-color);
+    box-shadow: 0 0 20px -5px rgba(0, 240, 255, 0.2);
+    transform: translateY(-2px);
+  }
+
   .publication-card:hover {
     transform: translateY(-4px);
     border-color: rgba(255, 255, 255, 0.15);
@@ -1169,10 +1195,12 @@ section {
     border-color: rgba(255, 255, 255, 0.15);
   }
 
+  /* Optimized interaction state; runs transitions solely on hover selection */
   .leaflet-interactive:hover {
     filter: brightness(1.25) saturate(1.1);
     stroke-width: 2.5px !important;
     cursor: crosshair;
+    transition: filter var(--trans-fast), stroke-width var(--trans-fast);
   }
 
   .tree-branch:hover {
@@ -1197,7 +1225,7 @@ section {
 }
 
 /* ==========================================================================
-   CONSOLIDATED RESPONSIVE BREAKPOINTS
+   14. CONSOLIDATED RESPONSIVE BREAKPOINTS & LAYOUT SHIFTS
    ========================================================================== */
 @media (max-width: 1150px) {
   .map-legend-wrapper {
@@ -1335,6 +1363,16 @@ section {
     flex: 0 0 290px;
     scroll-snap-align: start;
     height: auto;
+  }
+
+  /* Override pagination limits, displaying all filtered carousel items in row layout */
+  .work-card.limit-hidden {
+    display: block !important;
+  }
+  
+  /* Remove expandable actions on touch displays running swipe decks */
+  .see-more-container {
+    display: none !important;
   }
 }
 
