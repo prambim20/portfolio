@@ -30,30 +30,94 @@ function initPageThemeEngine() {
     other: { bg: '#03140e', glow: '#f59e0b', accent: '#f59e0b' }
   };
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const id = entry.target.id;
-        const theme = themes[id];
-        if (theme) {
-          const bodyStyle = document.body.style;
-          bodyStyle.setProperty('--page-bg', theme.bg);
-          bodyStyle.setProperty('--glow-color', theme.glow);
-          bodyStyle.setProperty('--accent', theme.accent);
-          
-          // Reactively stream theme color changes to globe avoiding main thread paint jams
-          if (globeInstance) {
-            globeInstance.setThemeColors(theme.glow, theme.accent);
-          }
-        }
-        navLinks.forEach(link => {
-          link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
-        });
-      }
-    });
-  }, { root: null, rootMargin: '-30% 0px -30% 0px', threshold: 0 });
+  let sectionOffsets = [];
+  let activeSectionId = '';
 
-  sections.forEach(section => observer.observe(section));
+  // Cache offsets to prevent layout reflow operations during scroll
+  const cacheOffsets = () => {
+    sectionOffsets = Array.from(sections).map(section => {
+      const rect = section.getBoundingClientRect();
+      return {
+        id: section.id,
+        top: rect.top + window.scrollY,
+        height: rect.height
+      };
+    });
+  };
+
+  const updateActiveSection = () => {
+    if (sectionOffsets.length === 0) return;
+    
+    // Midpoint trigger: 40% down the viewport height
+    const scrollPosition = window.scrollY + window.innerHeight * 0.4;
+    let currentId = sectionOffsets[0].id;
+
+    for (let i = 0; i < sectionOffsets.length; i++) {
+      const section = sectionOffsets[i];
+      if (scrollPosition >= section.top) {
+        currentId = section.id;
+      }
+    }
+
+    if (currentId !== activeSectionId) {
+      activeSectionId = currentId;
+      const theme = themes[currentId];
+      if (theme) {
+        const bodyStyle = document.body.style;
+        bodyStyle.setProperty('--page-bg', theme.bg);
+        bodyStyle.setProperty('--glow-color', theme.glow);
+        bodyStyle.setProperty('--accent', theme.accent);
+        
+        if (globeInstance) {
+          globeInstance.setThemeColors(theme.glow, theme.accent);
+        }
+      }
+      navLinks.forEach(link => {
+        link.classList.toggle('active', link.getAttribute('href') === `#${currentId}`);
+      });
+    }
+  };
+
+  // Initial setup
+  cacheOffsets();
+  updateActiveSection();
+
+  // Recalculate on resize to prevent offset drift
+  window.addEventListener('resize', () => {
+    cacheOffsets();
+    updateActiveSection();
+  }, { passive: true });
+
+  // Passive, throttled scroll execution at 60fps
+  let isScrolling = false;
+  window.addEventListener('scroll', () => {
+    if (!isScrolling) {
+      window.requestAnimationFrame(() => {
+        updateActiveSection();
+        isScrolling = false;
+      });
+      isScrolling = true;
+    }
+  }, { passive: true });
+
+  // Mobile menu toggle logic
+  const navToggle = document.querySelector('.nav-toggle');
+  const navLinksContainer = document.querySelector('.nav-links');
+
+  if (navToggle && navLinksContainer) {
+    navToggle.addEventListener('click', () => {
+      const isExpanded = navToggle.getAttribute('aria-expanded') === 'true';
+      navToggle.setAttribute('aria-expanded', !isExpanded);
+      navLinksContainer.classList.toggle('nav-active');
+    });
+
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        navToggle.setAttribute('aria-expanded', 'false');
+        navLinksContainer.classList.remove('nav-active');
+      });
+    });
+  }
 }
 
 /* ==========================================================================
@@ -82,10 +146,29 @@ function initHeroGlobe() {
    PHASE 3: SECTION - STATIC SHOWCASE (WORK)
    ========================================================================== */
 function initStaticShowcase() {
+  const workSection = document.getElementById('work');
   const workContainer = document.getElementById('work-catalog');
   const revealAllBtn = document.getElementById('btn-reveal-all');
 
   if (!workContainer || !Array.isArray(services)) return;
+
+  // 1. Generate & Inject Filter Pills dynamically
+  const filterWrapper = document.createElement('div');
+  filterWrapper.className = 'work-filters-container';
+  
+  const filters = ['All', 'Workflow', 'Model', 'Dataset'];
+  filterWrapper.innerHTML = `
+    <div class="work-filters">
+      ${filters.map((f, i) => `
+        <button class="filter-btn ${i === 0 ? 'active' : ''}" data-filter="${f}">
+          ${f === 'All' ? 'All Outputs' : f + 's'}
+        </button>
+      `).join('')}
+    </div>
+  `;
+  workSection.querySelector('.container').insertBefore(filterWrapper, workContainer);
+
+  let currentFilter = 'All';
 
   const buildWorkLegend = (legend) => {
     if (!legend) return '';
@@ -124,17 +207,17 @@ function initStaticShowcase() {
 
   const updateRevealButtonText = () => {
     if (!revealAllBtn) return;
-    const allCards = workContainer.querySelectorAll('.work-card');
-    const allAreExpanded = Array.from(allCards).every(card => card.classList.contains('expanded'));
+    const visibleCards = Array.from(workContainer.querySelectorAll('.work-card')).filter(card => !card.classList.contains('hidden'));
+    const allAreExpanded = visibleCards.every(card => card.classList.contains('expanded'));
     revealAllBtn.textContent = allAreExpanded ? 'Collapse All Images' : 'Reveal All Images';
   };
 
-  // Construct and render fragments efficiently
-  const fragment = document.createDocumentFragment();
-
+  // 2. Render initial cards
+  workContainer.innerHTML = '';
   services.forEach(service => {
     const card = document.createElement('div');
     card.className = 'work-card';
+    card.setAttribute('data-tag', service.tag);
     card.innerHTML = `
       <div class="work-img-wrapper">
         <img src="${service.imageUrl}" alt="${service.imageAlt}" class="work-img" loading="lazy" />
@@ -156,23 +239,51 @@ function initStaticShowcase() {
       updateRevealButtonText();
     });
 
-    fragment.appendChild(card);
+    workContainer.appendChild(card);
   });
 
-  workContainer.appendChild(fragment);
+  // 3. Filtering & Rendering Engine
+  const renderCatalog = () => {
+    const cards = workContainer.querySelectorAll('.work-card');
+    
+    cards.forEach(card => {
+      const matchesFilter = currentFilter === 'All' || card.getAttribute('data-tag') === currentFilter;
+      card.classList.toggle('hidden', !matchesFilter);
+    });
+
+    updateRevealButtonText();
+  };
+
+  // 4. Setup Action Listeners
+  filterWrapper.addEventListener('click', (e) => {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+
+    filterWrapper.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    currentFilter = btn.getAttribute('data-filter');
+    
+    // Smoothly reset horizontal scroll to starting position on tab shifts
+    workContainer.scrollTo({ left: 0, behavior: 'smooth' });
+    
+    renderCatalog();
+  });
 
   if (revealAllBtn) {
     revealAllBtn.addEventListener('click', () => {
-      const allCards = workContainer.querySelectorAll('.work-card');
-      const hasCollapsedCard = Array.from(allCards).some(card => !card.classList.contains('expanded'));
+      const visibleCards = Array.from(workContainer.querySelectorAll('.work-card')).filter(card => !card.classList.contains('hidden'));
+      const hasCollapsedCard = visibleCards.some(card => !card.classList.contains('expanded'));
 
-      allCards.forEach(card => {
+      visibleCards.forEach(card => {
         card.classList.toggle('expanded', hasCollapsedCard);
       });
 
       updateRevealButtonText();
     });
   }
+
+  renderCatalog();
 }
 
 /* ==========================================================================

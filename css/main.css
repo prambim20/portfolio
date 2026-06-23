@@ -127,20 +127,10 @@ p {
   color: #000;
 }
 
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.15);
-}
-
 .btn-outline {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: var(--text-primary);
-}
-
-.btn-outline:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* ==========================================================================
@@ -195,7 +185,6 @@ p {
   transition: color var(--trans-fast);
 }
 
-.nav-link:hover, 
 .nav-link.active {
   color: var(--text-primary);
 }
@@ -216,6 +205,27 @@ p {
 .nav-link.active::after {
   transform: scaleX(1);
   transform-origin: left;
+}
+
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 22px;
+  height: 18px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 1010;
+}
+
+.nav-toggle span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background-color: var(--text-primary);
+  transition: transform var(--trans-fast), opacity var(--trans-fast);
+  transform-origin: left center;
 }
 
 /* ==========================================================================
@@ -355,10 +365,6 @@ section {
   transition: color var(--trans-fast);
 }
 
-.partner-logo:hover {
-  color: var(--text-primary);
-}
-
 /* ==========================================================================
    HOLOGRAPHIC GLOBE WRAPPER (HERO GRAPHIC)
    ========================================================================== */
@@ -390,11 +396,47 @@ section {
   background: rgba(255, 255, 255, 0.01);
 }
 
+.work-filters-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+  width: 100%;
+}
+
+.work-filters {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.filter-btn {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  padding: 0.5rem 1.25rem;
+  border-radius: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all var(--trans-fast);
+}
+
+.filter-btn.active {
+  color: var(--text-primary);
+  border-color: var(--glow-color);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 15px -5px var(--glow-color);
+}
+
 .work-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
   width: 100%;
+  transition: opacity 0.4s var(--ease-out);
 }
 
 .work-card {
@@ -402,33 +444,22 @@ section {
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   overflow: hidden;
-  transition: transform var(--trans-fast), border-color var(--trans-fast);
+  transition: transform var(--trans-fast), border-color var(--trans-fast), opacity var(--trans-fast);
   cursor: pointer;
 }
 
-.work-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--glow-color);
-  box-shadow: 0 10px 30px rgba(0, 240, 255, 0.03);
+.work-card.hidden {
+  display: none !important;
 }
 
+/* Core collapsed metrics (Global Setup) */
 .work-img-wrapper {
   position: relative;
   height: 0;
   width: 100%;
   overflow: hidden;
   border-bottom: 1px solid transparent;
-  transition: height 0.45s var(--ease-out), border-color 0.45s var(--ease-out);
-}
-
-.work-card:hover .work-img-wrapper {
-  height: 180px;
-  border-bottom-color: rgba(255, 255, 255, 0.05);
-}
-
-.work-card.expanded .work-img-wrapper {
-  height: 180px !important;
-  border-bottom-color: rgba(255, 255, 255, 0.05);
+  transition: height 0.4s var(--ease-out), border-color 0.4s var(--ease-out);
 }
 
 .work-img {
@@ -437,11 +468,6 @@ section {
   object-fit: cover;
   filter: grayscale(100%) brightness(0.85);
   transition: transform 0.5s ease, filter 0.5s ease;
-}
-
-.work-card:hover .work-img {
-  transform: scale(1.05);
-  filter: grayscale(20%) brightness(0.95);
 }
 
 .work-overlay {
@@ -489,9 +515,6 @@ section {
   text-align: justify;
 }
 
-/* ==========================================================================
-   WORK CARD COMPONENT LEGENDS
-   ========================================================================== */
 .work-legend {
   max-height: 0;
   opacity: 0;
@@ -506,7 +529,17 @@ section {
               border-color 0.45s var(--ease-out);
 }
 
-.work-card:hover .work-legend,
+/* Explicit Global State triggers for JS (Double-Tap safe) */
+.work-card.expanded .work-img-wrapper {
+  height: 180px !important;
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+.work-card.expanded .work-img {
+  transform: scale(1.05);
+  filter: grayscale(20%) brightness(0.95);
+}
+
 .work-card.expanded .work-legend {
   max-height: 150px;
   opacity: 1;
@@ -581,11 +614,6 @@ section {
   cursor: pointer;
 }
 
-.publication-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(255, 255, 255, 0.15);
-}
-
 .publication-card .num {
   display: block;
   margin-bottom: 1.5rem;
@@ -650,14 +678,6 @@ section {
   transition: transform var(--trans-fast);
 }
 
-.publication-link:hover {
-  opacity: 0.85;
-}
-
-.publication-link:hover svg {
-  transform: translate(1.5px, -1.5px);
-}
-
 /* ==========================================================================
    INTERACTIVE MAP WORKSPACE (SHOWCASE)
    ========================================================================== */
@@ -695,10 +715,6 @@ section {
   transition: background var(--trans-theme);
 }
 
-.showcase-list::-webkit-scrollbar-thumb:hover {
-  filter: brightness(1.2);
-}
-
 .showcase-selector {
   flex-shrink: 0;
   padding: 1.5rem;
@@ -708,11 +724,6 @@ section {
   text-align: left;
   cursor: pointer;
   transition: all var(--trans-fast);
-}
-
-.showcase-selector:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .showcase-selector.active {
@@ -818,12 +829,6 @@ section {
 
 .leaflet-interactive {
   transition: filter var(--trans-fast), stroke-width var(--trans-fast);
-}
-
-.leaflet-interactive:hover {
-  filter: brightness(1.25) saturate(1.1);
-  stroke-width: 2.5px !important;
-  cursor: crosshair;
 }
 
 .map-legend-wrapper {
@@ -958,6 +963,13 @@ section {
   -webkit-user-select: none;
 }
 
+.map-swipe-line,
+.map-swipe-handle {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 /* ==========================================================================
    DYNAMIC HORIZONTAL SKILLS TREE
    ========================================================================== */
@@ -976,11 +988,6 @@ section {
   padding: 2.25rem;
   position: relative;
   transition: transform var(--trans-fast), border-color var(--trans-fast);
-}
-
-.tree-branch:hover {
-  border-color: var(--glow-color);
-  box-shadow: 0 10px 30px rgba(0, 240, 255, 0.02);
 }
 
 .tree-branch-header {
@@ -1090,12 +1097,104 @@ section {
   transition: background var(--trans-fast);
 }
 
-.leaflet-bar a:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important;
+/* ==========================================================================
+   TRUE HOVER-ONLY STATES (MOUSE SYSTEMS ONLY)
+   ========================================================================== */
+@media (hover: hover) {
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.15);
+  }
+
+  .btn-outline:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .nav-link:hover {
+    color: var(--text-primary);
+  }
+
+  .nav-link:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  .partner-logo:hover {
+    color: var(--text-primary);
+  }
+
+  .work-card:hover {
+    border-color: var(--glow-color);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(0, 240, 255, 0.03);
+  }
+
+  .work-card:hover .work-img-wrapper {
+    height: 180px;
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .work-card:hover .work-img {
+    transform: scale(1.05);
+    filter: grayscale(20%) brightness(0.95);
+  }
+
+  .work-card:hover .work-legend {
+    max-height: 150px;
+    opacity: 1;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .publication-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .publication-link:hover {
+    opacity: 0.85;
+  }
+
+  .publication-link:hover svg {
+    transform: translate(1.5px, -1.5px);
+  }
+
+  .showcase-selector:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .leaflet-interactive:hover {
+    filter: brightness(1.25) saturate(1.1);
+    stroke-width: 2.5px !important;
+    cursor: crosshair;
+  }
+
+  .tree-branch:hover {
+    border-color: var(--glow-color);
+    box-shadow: 0 10px 30px rgba(0, 240, 255, 0.02);
+  }
+
+  .leaflet-bar a:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .filter-btn:hover {
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .filter-btn.active:hover {
+    border-color: var(--glow-color);
+    background: rgba(255, 255, 255, 0.05);
+  }
 }
 
 /* ==========================================================================
-   CONSOLIDATED RESPONSIVE MEDIA QUERIES
+   CONSOLIDATED RESPONSIVE BREAKPOINTS
    ========================================================================== */
 @media (max-width: 1150px) {
   .map-legend-wrapper {
@@ -1106,7 +1205,6 @@ section {
 
 @media (max-width: 968px) {
   .hero-grid, 
-  .work-grid,
   .publication-grid, 
   .showcase-wrapper,
   .skills-tree-wrapper,
@@ -1116,7 +1214,30 @@ section {
   }
 
   .showcase-wrapper {
+    grid-template-columns: 1fr;
+    gap: 1rem;
     min-height: auto;
+  }
+
+  .showcase-list {
+    flex-direction: row;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 0.75rem;
+    max-height: none;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .showcase-selector {
+    width: 290px;
+    flex: 0 0 auto;
+    white-space: normal;
+    padding: 1.15rem;
+  }
+  
+  .showcase-selector h3 {
+    font-size: 1rem;
   }
 
   #map {
@@ -1139,5 +1260,115 @@ section {
     gap: 0.35rem;
     overflow: hidden;
     contain: layout style paint;
+  }
+
+  .nav-toggle {
+    display: flex;
+  }
+
+  .nav-links {
+    position: fixed;
+    top: var(--nav-height);
+    right: -100%;
+    width: 260px;
+    height: calc(100vh - var(--nav-height));
+    background: rgba(6, 9, 19, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 2.5rem;
+    gap: 2.5rem;
+    transition: right 0.4s var(--ease-out);
+    z-index: 1000;
+  }
+
+  .nav-links.nav-active {
+    right: 0;
+  }
+
+  .nav-toggle[aria-expanded="true"] span:nth-child(1) {
+    transform: rotate(45deg) translate(0px, -2px);
+  }
+
+  .nav-toggle[aria-expanded="true"] span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .nav-toggle[aria-expanded="true"] span:nth-child(3) {
+    transform: rotate(-45deg) translate(0px, 2px);
+  }
+
+  /* Transform static work grid into a smooth horizontal carousel deck */
+  .work-grid {
+    display: flex !important;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 1.25rem;
+    padding-bottom: 1rem;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--glow-color) rgba(255, 255, 255, 0.02);
+  }
+
+  .work-grid::-webkit-scrollbar {
+    height: 5px;
+  }
+
+  .work-grid::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.01);
+    border-radius: 10px;
+  }
+
+  .work-grid::-webkit-scrollbar-thumb {
+    background: var(--glow-color);
+    border-radius: 10px;
+  }
+
+  .work-card {
+    flex: 0 0 290px;
+    scroll-snap-align: start;
+    height: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 1.25rem;
+  }
+
+  section {
+    padding: 3rem 0;
+  }
+
+  .section-header h2 {
+    font-size: 1.85rem;
+  }
+
+  .hero-content h1 {
+    font-size: 2.35rem;
+    margin-bottom: 1rem;
+  }
+
+  .hero-cta {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .hero-cta .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .hero-stats {
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .tree-branch {
+    padding: 1.35rem;
   }
 }
