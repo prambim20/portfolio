@@ -6,13 +6,16 @@ import { GlobeEngine } from './globe.js';
 let globeInstance = null;
 
 document.addEventListener("DOMContentLoaded", () => {
-  initPageThemeEngine();
+  // 1. Populate dynamic HTML templates first so layout boundaries are structurally fully expanded
   initHeroStats();
-  initHeroGlobe();
   initStaticShowcase();
   initInteractiveShowcase();
   initPublications();
   initOther();
+
+  // 2. Initialize scrolling physics and coordinate mapping once container heights are fully stable
+  initPageThemeEngine();
+  initHeroGlobe();
 });
 
 /* ==========================================================================
@@ -33,7 +36,7 @@ function initPageThemeEngine() {
   let sectionOffsets = [];
   let activeSectionId = '';
 
-  // Cache offsets to prevent layout reflow operations during scroll
+  // Cache offsets safely without causing real-time thrashing during frame rendering
   const cacheOffsets = () => {
     sectionOffsets = Array.from(sections).map(section => {
       const rect = section.getBoundingClientRect();
@@ -78,17 +81,24 @@ function initPageThemeEngine() {
     }
   };
 
-  // Initial setup
+  // Perform initial caching after basic setup has completed
   cacheOffsets();
   updateActiveSection();
 
-  // Recalculate on resize to prevent offset drift
-  window.addEventListener('resize', () => {
-    cacheOffsets();
-    updateActiveSection();
-  }, { passive: true });
+  // Re-cache sizes once all remote layout assets (images, web fonts) are fully loaded
+  window.addEventListener('load', cacheOffsets, { passive: true });
+  window.addEventListener('resize', cacheOffsets, { passive: true });
 
-  // Passive, throttled scroll execution at 60fps
+  // Dynamically watch structural updates to automatically re-sync heights
+  if (window.ResizeObserver) {
+    const resizeObserver = new ResizeObserver(() => {
+      cacheOffsets();
+      updateActiveSection();
+    });
+    sections.forEach(section => resizeObserver.observe(section));
+  }
+
+  // Throttled high-performance scroll callback
   let isScrolling = false;
   window.addEventListener('scroll', () => {
     if (!isScrolling) {

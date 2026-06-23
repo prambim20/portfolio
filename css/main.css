@@ -54,6 +54,9 @@ body {
   position: fixed;
   inset: 0;
   pointer-events: none;
+  /* Promote to composite layers to prevent heavy scroll repaints */
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
 }
 
 .grid-backdrop {
@@ -75,6 +78,7 @@ body {
   filter: blur(140px);
   opacity: 0.3;
   transition: opacity var(--trans-theme);
+  will-change: opacity;
 }
 
 .glow-source {
@@ -384,8 +388,7 @@ section {
 
 #globe-canvas {
   display: block;
-  filter: drop-shadow(0 0 20px var(--glow-color));
-  transition: filter var(--trans-theme);
+  /* Removed CSS filter drop-shadow to fix massive scroll stuttering/lag; glow is natively drawn inside the canvas */
 }
 
 /* ==========================================================================
