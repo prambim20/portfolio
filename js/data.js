@@ -10,7 +10,7 @@ export const services = [
     tag: "Workflow",
     title: "X2Flood",
     description: "A framework developed during the 2025 Bekasi flood, utilizing a large language model (LLM) to analyze X (Twitter) posts. The pipeline combined scraping, filtering to cancel out noise, sentiment analysis to capture flood impacts, and reverse geocoding to anchor posts into a spatial model.",
-    imageUrl: "./data/images/X2Flood.webp",
+    imageUrl: "./data/images/section_2/X2Flood.webp",
     imageAlt: "X2Flood-Telemetry",
     legend: {
       type: "continuous",
@@ -25,7 +25,7 @@ export const services = [
     tag: "Workflow",
     title: "RoadMatcher",
     description: "A framework designed to compare OSM and Microsoft RoadDetections datasets in Surabaya. By preprocessing road data and applying topological logic and geometric descriptors, the framework identifies differences between the two sources and finds gaps in mapped road networks.",
-    imageUrl: "./data/images/RoadMatcher.webp",
+    imageUrl: "./data/images/section_2/RoadMatcher.webp",
     imageAlt: "RoadMatcher-Telemetry",
     legend: {
       type: "discrete",
@@ -41,7 +41,7 @@ export const services = [
     tag: "Model",
     title: "OilPalm3DETR",
     description: "A model developed for palm oil tree inventory and monitoring, adapted from RF-DETR for drone RGB imagery. The model was trained and fine-tuned to address imbalanced datasets, incorporating sliding window inference and non-max merging to improve detection in dense plantation areas.",
-    imageUrl: "./data/images/OilPalm3DETR.webp",
+    imageUrl: "./data/images/section_2/OilPalm3DETR.webp",
     imageAlt: "OilPalm3DETR-Telemetry",
     legend: {
       type: "discrete",
@@ -57,7 +57,7 @@ export const services = [
     tag: "Dataset",
     title: "BuildHeight",
     description: "A dataset developed to represent building heights across the entire Jakarta mainland, derived from multi-source satellite imagery. Buildings were segmented using U-Net++ and heights estimated to approximate floor counts. The dataset serves as a proxy for building height information.",
-    imageUrl: "./data/images/BuildHeight.webp",
+    imageUrl: "./data/images/section_2/BuildHeight.webp",
     imageAlt: "BuildHeight-Telemetry",
     legend: {
       type: "continuous",
@@ -72,7 +72,7 @@ export const services = [
     tag: "Dataset",
     title: "BuildResident",
     description: "A dataset created using a dasymetric technique, representing settlement footprints with estimated resident counts across the Jakarta mainland. Predictors such as building charateristics and land value were applied to distinguish settlements from non-residential structures.",
-    imageUrl: "./data/images/BuildResident.webp",
+    imageUrl: "./data/images/section_2/BuildResident.webp",
     imageAlt: "BuildResident-Telemetry",
     legend: {
       type: "continuous",
@@ -87,8 +87,12 @@ export const services = [
     tag: "Model",
     title: "DSM2NDSM",
     description: "A model developed to translate DSM into NDSM using U-Net with VGG-16 backbone, providing true relative height estimates for urban analysis and planning across the Jakarta mainland, while reducing DSM noise to better align with ground reality.",
-    imageUrl: "./data/images/DSM2NDSM.webp",
+    imageUrl: "./data/images/section_2/DSM2NDSM_Cover.webp",
     imageAlt: "DSM2NDSM-Telemetry",
+     views: [
+      { label: "DSM", url: "./data/images/section_2/DSM2NDSM_DSM.webp" },
+      { label: "Predicted NDSM", url: "./data/images/section_2/DSM2NDSM_NDSM.webp" }
+    ],
     legend: {
       type: "continuous",
       title: "Height (m)",
@@ -102,21 +106,30 @@ export const services = [
     tag: "Model",
     title: "SAR∞Optics",
     description: "A model developed using CycleGAN to translate SAR intensity data into multispectral imagery, and vice versa (∞). It enables representation when clouds or haze obscure vision, while enriching temporal density by bridging SAR and optical observations for urban and environmental analysis.",
-    imageUrl: "./data/images/SAR∞Optics.webp",
-    imageAlt: "SAR∞Optics-Telemetry"
+    imageUrl: "./data/images/section_2/SAR∞Optics_Cover.webp",
+    imageAlt: "SAR∞Optics-Telemetry",
+    views: [
+      { label: "Real S1", url: "./data/images/section_2/SAR∞Optics_S1Real.webp" },
+      { label: "Real S2", url: "./data/images/section_2/SAR∞Optics_S2Real.webp" },
+      { label: "Synthesized S2", url: "./data/images/section_2/SAR∞Optics_S2Synthetized.webp" }
+    ]
   },
   {
     num: "08",
     tag: "Model",
-    title: "ThermalScale",
-    description: "A model developed using machine learning ensemble methods to downscale Landsat LST data with ancillary predictors from multiple sources. Based on mean-ensemble and residual correction, it produces finer-resolution thermal estimates that support urban heat analysis and environmental planning.",
-    imageUrl: "./data/images/ThermalScale.webp",
-    imageAlt: "ThermalScale-Telemetry",
+    title: "ΛTLAS",
+    description: "Ancillary-driven Thermal Landsat Analysis and Scaling (ΛTLAS) is an ensemble-based model used to downscale Landsat LST data with ancillary predictors from multiple sources. Based on mean-ensemble and residual correction, it produces finer-resolution thermal estimates that support urban heat analysis.",
+    imageUrl: "./data/images/section_2/ΛTLAS_Cover.webp",
+    imageAlt: "ΛTLAS-Telemetry",
+    views: [
+      { label: "Landsat LST", url: "./data/images/section_2/ΛTLAS_LandsatLST.webp" },
+      { label: "Downscaled LST", url: "./data/images/section_2/ΛTLAS_DownscaledLST.webp" }
+    ],
     legend: {
       type: "continuous",
       title: "Temperature (°C)",
       min: "24.0",
-      max: "30.0",
+      max: "31.0",
       gradient: "linear-gradient(to right, #042434, #4234a0, #8e548c, #d86d6a, #fca93c, #e8fa5b)"
     }
   },
@@ -125,8 +138,12 @@ export const services = [
     tag: "Model",
     title: "SparseΣDense",
     description: "A model developed to generate dense raster data from sparse points using a convolutional architecture. By leveraging ancillary inputs such as aerial imagery as guiding information, it can be fine‑tuned to densify datasets like NDSM, extrapolating from limited observations to produce continuous surfaces.",
-    imageUrl: "./data/images/SparseΣDense.webp",
+    imageUrl: "./data/images/section_2/SparseΣDense_Cover.webp",
     imageAlt: "SparseΣDense-Telemetry",
+    views: [
+      { label: "Sparse Point", url: "./data/images/section_2/SparseΣDense_SparsePoint.webp" },
+      { label: "Densified Point", url: "./data/images/section_2/SparseΣDense_DensePoint.webp" }
+    ],
     legend: {
       type: "discrete",
       title: "Point",
@@ -134,6 +151,18 @@ export const services = [
         { label: "Observation/Data Point", color: "#ffffff" }
       ]
     }
+  },
+  {
+    num: "10",
+    tag: "Model",
+    title: "DespeckleNet",
+    description: "A joint learning model, this custom attention-driven UNet is used to simultaneously despeckle and super-resolve raw Sentinel-1 SAR intensity data. Based on dual-attention blocks and edge-preserving skip connections, it produces high-fidelity imagery that supports sharp boundary definition.",
+    imageUrl: "./data/images/section_2/DespeckleNet_Cover.webp",
+    imageAlt: "SparseΣDense-Telemetry",
+    views: [
+      { label: "Raw S1", url: "./data/images/section_2/DespeckleNet_S1Noisy.webp" },
+      { label: "Despeckled S1", url: "./data/images/section_2/DespeckleNet_S1Despeckled.webp" }
+    ]
   }
 ];
 
@@ -151,7 +180,7 @@ export const projects = [
     hudCoords: "Tana Tidung, IDN | 3.66° N, 116.89° E",
     description: "Canopy Height Map (CHM) derived from Sentinel-1 SAR GRD dual-pol (VV, VH) amplitude data using Visual Transformers.",
     imageOverlay: {
-      url: "./data/images/SAR2CHM_Map.webp", 
+      url: "./data/images/section_3/SAR2CHM_Map.webp", 
       // [ [South, West], [North, East] ] format for Leaflet bounds
       bounds: [
         [3.3487662448960700, 116.2410994497819416], // Southwest corner
@@ -179,7 +208,7 @@ export const projects = [
     hudCoords: "Bogor City, IDN | -6.63° N, 106.79° E",
     description: "Tree Detection Map from drone RGB imagery, using RetinaNet fine-tuned with semi-supervised learning to identify tree species.",
     imageOverlay: {
-      url: "./data/images/DETECT3_Map.webp", 
+      url: "./data/images/section_3/DETECT3_Map.webp", 
       // [ [South, West], [North, East] ] format for Leaflet bounds
       bounds: [
         [-6.6348913944271564, 106.7905781396979137], // Southwest corner
@@ -209,7 +238,7 @@ export const projects = [
     hudCoords: "Alas Purwo Park, IDN | -8.61° S, 114.42° E",
     description: "Above Ground Biomass Density (AGBD) Map from multi-source data, estimated with allometric models.",
     imageOverlay: {
-      url: "./data/images/FORESTMASS_Map.webp", 
+      url: "./data/images/section_3/FORESTMASS_Map.webp", 
       // [ [South, West], [North, East] ] format for Leaflet bounds
       bounds: [
         [-8.7933538312069626, 114.2124461684275190],  // Southwest corner
@@ -237,7 +266,7 @@ export const projects = [
     hudCoords: "Palembang City, IDN | -3.05° S, 105.04° E",
     description: "NDVI Map generated from Sentinel-1 SAR GRD dual-pol (VV, VH) imagery, translated using Attention U-Net.",
     imageOverlay: {
-      url: "./data/images/SAR2NDVI_Map.webp", 
+      url: "./data/images/section_3/SAR2NDVI_Map.webp", 
       // [ [South, West], [North, East] ] format for Leaflet bounds
       bounds: [
         [-3.8392198612700112, 104.3092266884644204], // Southwest corner
@@ -266,7 +295,7 @@ export const projects = [
     description: "Gap-filled satellite imagery from MODIS and Landsat data, processed with the STARFM algorithm ported to Google Earth Engine JS.",
     // Base Layer: LANDSAT Map (Raster)
     imageOverlay: {
-      url: "./data/images/STARFM4NDVI_LANDSAT_Map.webp",
+      url: "./data/images/section_3/STARFM4NDVI_LANDSAT_Map.webp",
       bounds: [
         [49.1527853366355814, 26.0163318007782536], // Southwest corner
         [49.2630767973474377, 26.1836882168004124]  // Northeast corner
@@ -275,7 +304,7 @@ export const projects = [
     },
     // Comparison Swipe Layer: MODIS Map (Raster)
     comparisonImageOverlay: {
-      url: "./data/images/STARFM4NDVI_MODIS_Map.webp",
+      url: "./data/images/section_3/STARFM4NDVI_MODIS_Map.webp",
       bounds: [
         [49.15278533663558, 26.01633180077825], 
         [49.26307679734744, 26.18368821680041]
@@ -303,7 +332,7 @@ export const projects = [
     description: "Thermal Super-Resolved Map generated from Landsat TIR data, trained and fine-tuned using Conditional GAN (CGAN).",
     // Base Layer: High Resolution Map (Raster)
     imageOverlay: {
-      url: "./data/images/THERMALX_HIGH_Map.webp",
+      url: "./data/images/section_3/THERMALX_HIGH_Map.webp",
       bounds: [
         [-7.6894656552271510, 111.4890706249904753], // Southwest corner
         [-7.5762135475621548, 111.5746207782625987]  // Northeast corner
@@ -312,7 +341,7 @@ export const projects = [
     },
     // Comparison Swipe Layer: Low Resolution Map (Raster)
     comparisonImageOverlay: {
-      url: "./data/images/THERMALX_LOW_Map.webp",
+      url: "./data/images/section_3/THERMALX_LOW_Map.webp",
       bounds: [
         [-7.6894656552271510, 111.4890706249904753],
         [-7.5762135475621548, 111.5746207782625987]

@@ -57,7 +57,6 @@ body {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  /* Promote to composite layers to prevent scroll-linked repaints */
   will-change: transform;
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
@@ -488,15 +487,81 @@ section {
   width: 100%;
   overflow: hidden;
   border-bottom: 1px solid transparent;
-  transition: height 0.4s var(--ease-out), border-color 0.4s var(--ease-out);
+  transition: height var(--trans-medium), border-color var(--trans-medium);
+  transform: translate3d(0, 0, 0);
+  isolation: isolate; 
 }
 
 .work-img {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 180px;
+  height: 100%;
   object-fit: cover;
   filter: grayscale(100%) brightness(0.85);
-  transition: transform 0.5s ease, filter 0.5s ease;
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.5s var(--ease-out), filter 0.5s var(--ease-out), opacity var(--trans-fast);
+}
+
+.work-img.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Float Segmented View Selector over the backdrop overlay */
+.work-view-selector {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translate(-50%, 8px);
+  display: flex;
+  gap: 4px;
+  background: rgba(6, 9, 19, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 3px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--trans-fast), transform var(--trans-fast);
+  z-index: 20;
+}
+
+/* Expose controls on focus states or expansion triggers */
+.work-card.expanded .work-view-selector,
+.work-card:hover .work-view-selector {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
+
+/* Micro-Buttons targeting GEE/Model perspectives */
+.view-tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--trans-fast);
+  white-space: nowrap;
+}
+
+.view-tab-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.view-tab-btn.active {
+  color: #000000;
+  background: var(--text-primary);
+  font-weight: 600;
 }
 
 .work-overlay {
@@ -1009,10 +1074,16 @@ section {
   border-radius: 12px;
   padding: 2.25rem;
   position: relative;
-  transition: transform var(--trans-fast), border-color var(--trans-fast);
+  cursor: pointer;
+  transition: transform var(--trans-fast), border-color var(--trans-fast), box-shadow var(--trans-fast);
 }
 
+/* Glassmorphic Flex Header for dynamic align-right Toggle controls */
 .tree-branch-header {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
   font-family: var(--font-mono);
   font-size: 0.85rem;
   font-weight: 700;
@@ -1022,12 +1093,32 @@ section {
   margin-bottom: 1.5rem;
   border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
   padding-bottom: 0.75rem;
+  user-select: none;
+}
+
+/* Micro Chevron Indicator */
+.branch-toggle-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-secondary);
+  transition: transform var(--trans-medium);
+}
+
+.tree-branch.expanded .branch-toggle-icon {
+  transform: rotate(180deg);
+  color: var(--glow-color);
 }
 
 .tree-node {
   position: relative;
   padding-left: 1.5rem;
   margin-bottom: 1.25rem;
+  transition: margin-bottom var(--trans-medium);
+}
+
+/* Condensed vertical node margin on collapsed state */
+.tree-branch:not(.expanded) .tree-node {
+  margin-bottom: 0.65rem;
 }
 
 .tree-node::before {
@@ -1048,10 +1139,28 @@ section {
   width: 1px;
   height: 100%;
   border-left: 1px solid rgba(255, 255, 255, 0.15);
+  transition: height var(--trans-medium);
 }
 
 .tree-node:last-child::after {
   height: 0.65rem;
+}
+
+/* Details wrapper with smooth max-height transitions */
+.node-details {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  margin-top: 0;
+  transition: max-height var(--trans-medium), 
+              opacity var(--trans-medium), 
+              margin-top var(--trans-medium);
+  will-change: max-height, opacity;
+}
+
+.tree-branch.expanded .node-details {
+  opacity: 1;
+  margin-top: 0.65rem;
 }
 
 .node-title {
@@ -1359,18 +1468,42 @@ section {
     border-radius: 10px;
   }
 
+  /* Added 'flex' transition to make card width expansion fluid */
   .work-card {
-    flex: 0 0 290px;
+    flex: 0 0 280px;
     scroll-snap-align: start;
     height: auto;
+    transition: transform var(--trans-fast), 
+                border-color var(--trans-fast), 
+                opacity var(--trans-fast), 
+                flex var(--trans-medium);
   }
 
-  /* Override pagination limits, displaying all filtered carousel items in row layout */
+  .work-card.expanded {
+    flex: 0 0 calc(100vw - 4rem) !important;
+    scroll-snap-align: center;
+  }
+
+  .work-card.expanded .work-img-wrapper {
+    height: 250px !important;
+  }
+
   .work-card.limit-hidden {
     display: block !important;
   }
+
+  /* Micro adjustments for toggle tabs layout on narrow viewports */
+  .work-view-selector {
+    bottom: 8px;
+    padding: 2px;
+    gap: 2px;
+  }
+
+  .view-tab-btn {
+    padding: 3px 6px;
+    font-size: 0.6rem;
+  }
   
-  /* Remove expandable actions on touch displays running swipe decks */
   .see-more-container {
     display: none !important;
   }

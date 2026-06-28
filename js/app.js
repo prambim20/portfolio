@@ -269,10 +269,44 @@ function initStaticShowcase() {
     const card = document.createElement('div');
     card.className = 'work-card';
     card.setAttribute('data-tag', service.tag);
+
+    const hasViews = Array.isArray(service.views) && service.views.length > 0;
+
+    let imagesHtml = '';
+    if (hasViews) {
+      imagesHtml = `
+        <img src="${service.imageUrl}" alt="${service.imageAlt} - Cover" class="work-img work-img-cover active" loading="lazy" />
+      `;
+      imagesHtml += service.views.map((view, idx) => `
+        <img src="${view.url}" 
+             onerror="this.onerror=null; this.src='${service.imageUrl}';" 
+             alt="${service.imageAlt} - ${view.label}" 
+             class="work-img" 
+             data-view-idx="${idx}" 
+             loading="lazy" />
+      `).join('');
+    } else {
+      imagesHtml = `<img src="${service.imageUrl}" alt="${service.imageAlt}" class="work-img active" loading="lazy" />`;
+    }
+
+    let selectorHtml = '';
+    if (hasViews) {
+      selectorHtml = `
+        <div class="work-view-selector" role="group" aria-label="Visual perspective views">
+          ${service.views.map((view, idx) => `
+            <button class="view-tab-btn" data-view-target="${idx}">
+              ${view.label}
+            </button>
+          `).join('')}
+        </div>
+      `;
+    }
+
     card.innerHTML = `
       <div class="work-img-wrapper">
-        <img src="${service.imageUrl}" alt="${service.imageAlt}" class="work-img" loading="lazy" />
+        ${imagesHtml}
         <div class="work-overlay"></div>
+        ${selectorHtml}
       </div>
       <div class="work-content">
         <div class="work-meta">
@@ -285,10 +319,61 @@ function initStaticShowcase() {
       </div>
     `;
 
-    card.addEventListener('click', () => {
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('.view-tab-btn')) return;
+
+      const isCollapsing = card.classList.contains('expanded');
       card.classList.toggle('expanded');
       updateRevealButtonText();
+
+      if (!isCollapsing && window.innerWidth <= 768) {
+        setTimeout(() => {
+          card.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'nearest', 
+            inline: 'center' 
+          });
+        }, 150);
+      }
+
+      if (isCollapsing && hasViews) {
+        const coverImg = card.querySelector('.work-img-cover');
+        const viewImgs = card.querySelectorAll('.work-img');
+        const tabBtns = card.querySelectorAll('.view-tab-btn');
+
+        if (coverImg) coverImg.classList.add('active');
+        tabBtns.forEach(btn => btn.classList.remove('active'));
+        viewImgs.forEach(img => {
+          if (!img.classList.contains('work-img-cover')) {
+            img.classList.remove('active');
+          }
+        });
+      }
     });
+
+    if (hasViews) {
+      const tabBtns = card.querySelectorAll('.view-tab-btn');
+      const viewImgs = card.querySelectorAll('.work-img');
+      const coverImg = card.querySelector('.work-img-cover');
+      
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const targetIdx = btn.getAttribute('data-view-target');
+
+          if (coverImg) {
+            coverImg.classList.remove('active');
+          }
+
+          tabBtns.forEach(b => b.classList.toggle('active', b === btn));
+          
+          viewImgs.forEach(img => {
+            const imgIdx = img.getAttribute('data-view-idx');
+            img.classList.toggle('active', imgIdx === targetIdx);
+          });
+        });
+      });
+    }
 
     fragment.appendChild(card);
   });
@@ -457,7 +542,7 @@ function initPublications() {
 }
 
 /* ==========================================================================
-   PHASE 6: SECTION - OTHER
+   PHASE 6: SECTION - OTHER (CAPABILITIES)
    ========================================================================== */
 function initOther() {
   const container = document.getElementById('capabilities-tree');
@@ -470,14 +555,24 @@ function initOther() {
     const branchDiv = document.createElement('div');
     branchDiv.className = 'tree-branch';
 
-    let branchContent = `<div class="tree-branch-header">${branch.branchTitle}</div>`;
+    let branchContent = `
+      <div class="tree-branch-header">
+        <span>${branch.branchTitle}</span>
+        <span class="branch-toggle-icon" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </span>
+      </div>
+    `;
 
     if (Array.isArray(branch.nodes)) {
       branch.nodes.forEach(node => {
         let nodeContent = `
           <div class="tree-node">
             <div class="node-title">${node.title}</div>
-            <span class="node-desc">${node.description}</span>
+            <div class="node-details">
+              ${node.description ? `<span class="node-desc">${node.description}</span>` : ''}
         `;
 
         if (Array.isArray(node.leaves)) {
@@ -491,12 +586,30 @@ function initOther() {
           });
         }
 
-        nodeContent += `</div>`; 
+        nodeContent += `
+            </div>
+          </div>
+        `; 
         branchContent += nodeContent;
       });
     }
 
     branchDiv.innerHTML = branchContent;
+
+    branchDiv.addEventListener('click', () => {
+      const isExpanding = !branchDiv.classList.contains('expanded');
+      branchDiv.classList.toggle('expanded');
+
+      const detailsList = branchDiv.querySelectorAll('.node-details');
+      detailsList.forEach(details => {
+        if (isExpanding) {
+          details.style.maxHeight = `${details.scrollHeight}px`;
+        } else {
+          details.style.maxHeight = '0px';
+        }
+      });
+    });
+
     fragment.appendChild(branchDiv);
   });
 
