@@ -163,6 +163,18 @@ export const services = [
       { label: "Raw S1", url: "./data/images/section_2/DespeckleNet_S1Noisy.webp" },
       { label: "Despeckled S1", url: "./data/images/section_2/DespeckleNet_S1Despeckled.webp" }
     ]
+  },
+  {
+    num: "11",
+    tag: "Model",
+    title: "SurrealNet",
+    description: "Super-Resolved Spatial Network (SurrealNet) is a conditional diffusion-based model for super-resolving Sentinel-2 multispectral imagery. By introducing controlled noise and iteratively denoising with ancillary guidance, it reconstructs sharper spatial fidelity, while preserving spectral signatures.",
+    imageUrl: "./data/images/section_2/SurrealNet_Cover.webp",
+    imageAlt: "SurrealNet-Telemetry",
+    views: [
+      { label: "Raw S2", url: "./data/images/section_2/SurrealNet_S2Real.webp" },
+      { label: "Super Resolved s2", url: "./data/images/section_2/SurrealNet_S2Resolved.webp" }
+    ]
   }
 ];
 
