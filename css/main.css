@@ -722,11 +722,16 @@ section {
 /* ==========================================================================
    8a. METRO EXPANDED WORKSPACE PANEL (INLINE DETAILS)
    ========================================================================== */
+/* Base collapsed state: visibility hidden prevents layout thrashing during scroll reflows */
 .card-expanded-details {
   max-height: 0;
   opacity: 0;
   overflow: hidden;
-  transition: max-height 0.5s var(--ease-out), opacity 0.4s var(--ease-out), margin-top 0.4s var(--ease-out);
+  visibility: hidden; /* Pervents accidental rendering on scroll reflows */
+  transition: max-height 0.5s var(--ease-out), 
+              opacity 0.4s var(--ease-out), 
+              margin-top 0.4s var(--ease-out),
+              visibility 0s linear 0.5s; /* Delay visibility hidden until collapse finishes */
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -746,10 +751,16 @@ section {
   display: none; /* Hide collapsed summary in place of full expanded paragraphs */
 }
 
+/* Expanded State */
 .work-card.expanded .card-expanded-details {
   max-height: 1000px;
   opacity: 1;
   margin-top: 1rem;
+  visibility: visible; /* Show instantly when expanding */
+  transition: max-height 0.5s var(--ease-out), 
+              opacity 0.4s var(--ease-out), 
+              margin-top 0.4s var(--ease-out),
+              visibility 0s linear; /* Zero delay when expanding */
 }
 
 .work-card.expanded .card-chevron {
