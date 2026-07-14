@@ -16,26 +16,24 @@
 <body>
 
   <!-- Background Enhancements -->
+  <div class="spatial-backdrop-wrapper" aria-hidden="true">
+    <div class="spatial-backdrop" id="spatial-backdrop"></div>
+    <div class="spatial-backdrop-overlay"></div>
+  </div>
   <div class="grid-backdrop" aria-hidden="true"></div>
   <div class="vignette" aria-hidden="true"></div>
   <div class="glow-backdrop" aria-hidden="true"></div>
 
-  <!-- Navigation -->
+  <!-- Navigation (Floating Capsule Dock) -->
   <nav class="navbar" aria-label="Main Navigation">
-    <div class="container navbar-inner">
+    <div class="navbar-inner">
       <a href="#hero" class="logo">
-        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
-          <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5" stroke="currentColor" stroke-width="2" fill="none"/>
-          <polyline points="2 8.5 12 15 22 8.5" stroke="currentColor" stroke-width="1.5" fill="none"/>
-          <line x1="12" y1="15" x2="12" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="logo-icon" aria-hidden="true">
+          <circle cx="8" cy="8" r="4" fill="var(--glow-color)" />
+          <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5" opacity="0.3" />
         </svg>
-        My Works
+        <span class="logo-text">SpatiaLive</span>
       </a>
-      <button class="nav-toggle" aria-label="Toggle Navigation" aria-expanded="false">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
       <ul class="nav-links">
         <li><a href="#hero" class="nav-link active">Home</a></li>
         <li><a href="#work" class="nav-link">Work</a></li>
@@ -48,68 +46,56 @@
 
   <!-- Section: Hero -->
   <section id="hero" aria-labelledby="hero-title">
-    <div class="container hero-grid">
-      <!-- Left Column (Text Content) -->
-      <div class="hero-content">
-        <h1 id="hero-title">Hi there!</h1>
-        <p>
-          Welcome to my website. This is where I share the projects I've built, from geospatial analysis to environmental mapping and workflow automation. 
-          Each piece reflects my approach to solving spatial challenges with practical methods and clear results.
-        </p>
-        
-        <div class="hero-cta">
-          <a href="#showcase" class="btn btn-primary">View Interactive Showcase</a>
-          <a href="#work" class="btn btn-outline">Explore Static Work Catalog</a>
-        </div>
-
-        <!-- High-Impact Telemetry Stats -->
-        <div class="hero-stats" role="region" aria-label="Platform Statistics">
-          <div class="stat-item">
-            <span class="stat-num" id="project-count">—</span>
-            <span class="stat-label">Interactive Showcases</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-num" id="catalog-count">—</span>
-            <span class="stat-label">Static Catalogues</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-num" id="publication-count">—</span>
-            <span class="stat-label">Scientific Publications</span>
-          </div>
-        </div>
-
-        <!-- Monochromatic Trust Anchor Logobar -->
-        <div class="hero-logobar">
-          <span class="logobar-title">Core Deployment Nodes</span>
-          <div class="logo-row">
-            <span class="partner-logo">
-              GitHub / Pages
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.137 20.162 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
-              </svg>
-            </span>
-          </div>
-        </div>
+    <div class="container hero-centered">
+      <div class="hero-badge">GEOSPATIAL CONTENTS</div>
+      <h1 id="hero-title">Doing the Work.<br>By Mapping the World.</h1>
+      
+      <p class="hero-lead">
+        Welcome to my portfolio. This is where I share the projects I've built, from geospatial analysis to environmental mapping and workflow automation. 
+        Each piece reflects my approach to solving spatial challenges with practical methods and clear results.
+      </p>
+      
+      <div class="hero-cta-group">
+        <a href="#showcase" class="btn btn-primary">
+          View Interactive Showcase
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </a>
+        <a href="#work" class="btn btn-outline">Explore Static Catalog</a>
       </div>
 
-      <!-- Right Column (Globe) -->
-      <div class="globe-wireframe">
-        <canvas id="globe-canvas"></canvas>
+      <!-- Centered Stats Hub Console Panel -->
+      <div class="hero-stats-panel" role="region" aria-label="Platform Statistics">
+        <div class="panel-stat">
+          <span class="stat-num" id="project-count">—</span>
+          <span class="stat-label">Interactive Showcases</span>
+        </div>
+        <div class="panel-stat-divider" aria-hidden="true"></div>
+        <div class="panel-stat">
+          <span class="stat-num" id="catalog-count">—</span>
+          <span class="stat-label">Static Catalogues</span>
+        </div>
+        <div class="panel-stat-divider" aria-hidden="true"></div>
+        <div class="panel-stat">
+          <span class="stat-num" id="publication-count">—</span>
+          <span class="stat-label">Scientific Publications</span>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Section: Work -->
+  <!-- Section: Work (Metro Glassmorphic Card Catalog with Filters) -->
   <section id="work" class="work-section" aria-labelledby="work-title">
     <div class="container">
       <div class="section-header">
         <span class="tag">Work</span>
         <h2 id="work-title">Rollouts</h2>
         <p>A static catalogue of geospatial projects and analytical outputs, showcasing methods and results across varied applications.</p>
-        <button id="btn-reveal-all" class="btn btn-outline" style="margin-top: 1.25rem;">Reveal All Images</button>
+        <button id="btn-reveal-all" class="btn btn-outline" style="margin-top: 1.25rem;">Reveal All Details</button>
       </div>
 
-      <!-- 3-Column Visual Card Grid -->
+      <!-- Glassmorphic Grid Catalog -->
       <div class="work-grid" id="work-catalog"></div>
     </div>
   </section>
