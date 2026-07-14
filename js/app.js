@@ -218,6 +218,7 @@ function initStaticShowcase() {
     const cards = Array.from(workContainer.querySelectorAll('.work-card'));
     const matchingCards = [];
 
+    // Filter cards first without stripping hidden states
     cards.forEach(card => {
       const matches = currentFilter === 'All' || card.getAttribute('data-tag') === currentFilter;
       if (matches) {
@@ -225,14 +226,14 @@ function initStaticShowcase() {
         matchingCards.push(card);
       } else {
         card.classList.add('filtered-out');
+        card.classList.add('limit-hidden'); // Hide filtered items immediately
       }
-      card.classList.remove('limit-hidden');
     });
 
     const isMobile = window.innerWidth <= 768;
 
-    // FIXED: Snapping mobile panels load all matches seamlessly; desktop layout retains the 6-limit See More triggers
     if (isMobile) {
+      // Mobile displays all cards natively
       matchingCards.forEach(card => {
         card.classList.remove('limit-hidden');
         card.classList.remove('collapsing-anim');
@@ -242,31 +243,32 @@ function initStaticShowcase() {
     } else {
       const hasMoreThanLimit = matchingCards.length > INITIAL_LIMIT;
 
-      if (isSeeMoreExpanded) {
-        // Butter-smooth revealing slide transition [main.css]
-        matchingCards.forEach((card, idx) => {
-          if (idx >= INITIAL_LIMIT) {
+      matchingCards.forEach((card, idx) => {
+        if (idx < INITIAL_LIMIT) {
+          card.classList.remove('limit-hidden');
+          card.classList.remove('collapsing-anim');
+          card.classList.remove('revealing-anim');
+        } else {
+          if (isSeeMoreExpanded) {
             card.classList.remove('limit-hidden');
-            void card.offsetWidth; // Force layout re-render for clean keyframe registry
+            void card.offsetWidth; // Force a clean browser paint
             card.classList.add('revealing-anim');
             card.classList.remove('collapsing-anim');
+          } else {
+            // Only trigger collapse animations if the card is currently visible
+            if (!card.classList.contains('limit-hidden') && !card.classList.contains('collapsing-anim')) {
+              card.classList.add('collapsing-anim');
+              card.classList.remove('revealing-anim');
+              
+              setTimeout(() => {
+                if (card.classList.contains('collapsing-anim')) {
+                  card.classList.add('limit-hidden');
+                }
+              }, 400);
+            }
           }
-        });
-      } else {
-        // Butter-smooth collapsing fade transition [main.css]
-        matchingCards.forEach((card, idx) => {
-          if (idx >= INITIAL_LIMIT) {
-            card.classList.add('collapsing-anim');
-            card.classList.remove('revealing-anim');
-            
-            setTimeout(() => {
-              if (card.classList.contains('collapsing-anim')) {
-                card.classList.add('limit-hidden');
-              }
-            }, 400); // Maps accurately to custom collapse duration
-          }
-        });
-      }
+        }
+      });
 
       if (hasMoreThanLimit) {
         seeMoreContainer.style.display = 'flex';
