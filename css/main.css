@@ -1848,11 +1848,11 @@ section {
     bottom: auto;
     left: 50%;
     transform: translateX(-50%);
-    width: calc(100% - 20px);
+    width: calc(100% - 16px);
     max-width: 480px;
     height: 52px !important;
     border-radius: 40px;
-    padding: 0 1.25rem;
+    padding: 0 0.85rem;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
   }
 
@@ -1867,6 +1867,7 @@ section {
   .logo {
     display: flex !important;
     align-items: center;
+    margin-right: 0.15rem;
   }
 
   .logo-text {
@@ -1875,16 +1876,18 @@ section {
 
   .nav-links {
     display: flex;
-    gap: 0.75rem;
+    gap: clamp(0.25rem, 1.8vw, 0.8rem);
     list-style: none;
     align-items: center;
+    width: auto;
   }
 
   .nav-link {
-    font-size: 0.8rem;
+    font-size: clamp(11px, 2.4vw, 13px);
     font-weight: 600;
-    padding: 0.6rem 0.25rem;
+    padding: 0.5rem 0.15rem;
     letter-spacing: -0.01em;
+    white-space: nowrap;
   }
 
   .nav-link::after {
