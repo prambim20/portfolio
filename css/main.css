@@ -1,22 +1,19 @@
 /* ==========================================================================
-   1. CORE DESIGN SYSTEM & CUSTOM PROPERTIES
+   1. DESIGN SYSTEM & ROOT PROPERTIES
    ========================================================================== */
 :root {
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   
-  /* Primary Theme Color Palette */
   --page-bg: #060913;
   --glow-color: #00f0ff;
   --accent: #3b82f6;
   
-  /* Text and Interface Accents */
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
   --border-glow: rgba(255, 255, 255, 0.06);
   --nav-height: 70px;
 
-  /* Global Animations and Transitions */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --trans-bg: background-color 1.4s var(--ease-out);
   --trans-theme: 1.4s var(--ease-out);
@@ -25,7 +22,7 @@
 }
 
 /* ==========================================================================
-   2. RESET & BASE HTML ELEMENT STYLING
+   2. RESET & BASE ELEMENT STYLING
    ========================================================================== */
 * {
   box-sizing: border-box;
@@ -36,20 +33,20 @@
 html {
   scroll-behavior: smooth;
   font-family: var(--font-sans);
-  background-color: var(--page-bg); /* Dynamic page background moves here to fix stacking context issues */
+  background-color: var(--page-bg);
   transition: var(--trans-bg);
   color: var(--text-primary);
 }
 
 body {
-  background-color: transparent; /* Transparent body allows negative z-index elements to display cleanly */
+  background-color: transparent;
   overflow-x: hidden;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
 /* ==========================================================================
-   3. ATMOSPHERIC GRAPHICAL BACKDROPS
+   3. BACKDROP & AMBIENT LAYERS
    ========================================================================== */
 .grid-backdrop,
 .vignette,
@@ -62,7 +59,6 @@ body {
   backface-visibility: hidden;
 }
 
-/* Background overlay grid pattern */
 .grid-backdrop {
   z-index: -3;
   background-size: 80px 80px;
@@ -72,13 +68,11 @@ body {
   opacity: 0.85;
 }
 
-/* Vignette border contrast overlay */
 .vignette {
   z-index: -1;
   background: radial-gradient(circle at center, transparent 35%, rgba(0, 0, 0, 0.75) 100%);
 }
 
-/* Hardware-accelerated glow gradient; avoids heavy CPU blur operations */
 .glow-backdrop {
   z-index: -2;
   opacity: 0.12;
@@ -87,11 +81,10 @@ body {
   will-change: background, opacity;
 }
 
-/* Living Product Backdrop Integration Layer (Centrally focused masks) */
 .spatial-backdrop-wrapper {
   position: fixed;
   inset: 0;
-  z-index: -4; /* Securely placed behind active section content blocks */
+  z-index: -4;
   pointer-events: none;
   overflow: hidden;
 }
@@ -100,7 +93,7 @@ body {
   position: absolute;
   inset: 0;
   mix-blend-mode: screen; 
-  opacity: 0.22; /* Increased baseline contrast for vibrant product details */
+  opacity: 0.22;
   transition: opacity 1.5s var(--ease-out);
 }
 
@@ -110,17 +103,26 @@ body {
   background-size: cover;
   background-position: center 50%;
   opacity: 0;
-  transform: scale(1.0);
-  transition: opacity 3s ease-in-out, transform 15s linear;
+  transform: scale(1.0) translate3d(0, 0, 0);
+  transition: opacity 3s ease-in-out;
   filter: grayscale(100%) contrast(1.2) brightness(0.7);
+  will-change: opacity, transform;
 }
 
 .backdrop-layer.active {
   opacity: 1;
-  transform: scale(1.06); /* Continuous slow-zoom parallax simulation */
+  animation: ambientZoom 24s ease-in-out infinite alternate;
 }
 
-/* Radial blend overlay matching the dynamic page background color */
+@keyframes ambientZoom {
+  0% {
+    transform: scale(1.0) translate3d(0, 0, 0);
+  }
+  100% {
+    transform: scale(1.08) translate3d(1%, -0.5%, 0);
+  }
+}
+
 .spatial-backdrop-overlay {
   position: absolute;
   inset: 0;
@@ -129,7 +131,7 @@ body {
 }
 
 /* ==========================================================================
-   4. TYPOGRAPHY, CORE CONTAINERS & UTILITY BUTTONS
+   4. TYPOGRAPHY & GLOBAL UI
    ========================================================================== */
 h1, h2, h3, h4 {
   font-weight: 700;
@@ -173,7 +175,7 @@ p {
 }
 
 /* ==========================================================================
-   5. NAVIGATION BAR & DOCK CAPSULE LAYOUT (MINIMALIST REMODEL)
+   5. NAVIGATION BAR
    ========================================================================== */
 .navbar {
   position: fixed;
@@ -209,7 +211,6 @@ p {
   padding: 0 1.5rem;
 }
 
-/* Understated, Minimalist, Non-Cringe Graphic Identity */
 .logo {
   display: flex;
   align-items: center;
@@ -219,23 +220,21 @@ p {
   transition: opacity var(--trans-fast);
 }
 
-/* Glowing geographic point eye blink simulation loop */
 .logo-icon {
   color: var(--text-secondary);
   transition: transform var(--trans-medium);
 }
 
-.logo-icon circle:first-child {
-  transform-origin: center;
+.logo-icon ellipse:first-child {
   animation: blinkEye 4s infinite ease-in-out;
 }
 
 @keyframes blinkEye {
   0%, 86%, 92%, 100% {
-    transform: scaleY(1); /* Geographic lens open */
+    ry: 4px;
   }
   89% {
-    transform: scaleY(0.1); /* Shutter closed (Blinks!) */
+    ry: 0.5px;
   }
 }
 
@@ -290,7 +289,7 @@ p {
 }
 
 /* ==========================================================================
-   6. GENERIC SECTION ARCHITECTURE (SOLID COMPRESSION LAYOUTS)
+   6. SECTIONS & HEADERS
    ========================================================================== */
 section {
   position: relative;
@@ -303,18 +302,17 @@ section {
   display: block;
   padding: calc(var(--nav-height) + 6.5rem) 0 6.0rem 0; 
   border-bottom: none;
-  background: transparent; /* Hero remains fully transparent overlaying the living background */
+  background: transparent;
   z-index: 2;
 }
 
-/* Suppress background movement on content sections with solid theme matching */
 #showcase, 
 #publication, 
 #other {
   background-color: var(--page-bg);
   transition: var(--trans-bg);
   position: relative;
-  z-index: 10; /* Stacked completely over background slides to secure content visibility */
+  z-index: 10;
 }
 
 .section-header {
@@ -344,7 +342,7 @@ section {
 }
 
 /* ==========================================================================
-   7. HERO LANDING PLATFORM (CENTERED REDESIGN & GLASS STATS)
+   7. HERO LANDING PLATFORM
    ========================================================================== */
 .hero-centered {
   display: flex;
@@ -397,7 +395,6 @@ section {
   margin-bottom: 4.5rem;
 }
 
-/* Premium Horizontal Control Panel Stats Platform */
 .hero-stats-panel {
   display: flex;
   align-items: center;
@@ -448,46 +445,11 @@ section {
   );
 }
 
-.hero-logobar {
-  margin-top: 2.5rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--border-glow);
-}
-
-.logobar-title {
-  display: block;
-  margin-bottom: 0.75rem;
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.logo-row {
-  display: flex;
-  gap: 1.5rem;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.partner-logo {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.4);
-  text-decoration: none;
-  transition: color var(--trans-fast);
-}
-
 /* ==========================================================================
-   8. STATIC METRO CARD CATALOG WORKSPACE (SECTION 2 REDESIGN)
+   8. STATIC CATALOG (WORK DISPLAY)
    ========================================================================== */
 #work {
-  background: transparent !important; /* Let the dynamic product backdrop layers shine through like Section 1 */
+  background: transparent !important;
   border-top: 1px solid var(--border-glow);
   position: relative;
   z-index: 10;
@@ -535,7 +497,6 @@ section {
   width: 100%;
 }
 
-/* Rounded Metro-Style Glassmorphic Wrapper Plate */
 .work-card {
   background: rgba(11, 16, 28, 0.45);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -545,7 +506,6 @@ section {
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  /* FIXED: Only transition transform and borders to prevent layout-reflow thrashing */
   transition: transform 0.4s var(--ease-out), 
               border-color 0.4s var(--ease-out), 
               box-shadow 0.4s var(--ease-out);
@@ -554,16 +514,11 @@ section {
   position: relative;
 }
 
-/* Dynamic display states for filtering and desktop limits */
-.work-card.filtered-out {
-  display: none !important;
-}
-
+.work-card.filtered-out,
 .work-card.limit-hidden {
   display: none !important;
 }
 
-/* Butter-smooth sequential animation triggers */
 .work-card.revealing-anim {
   animation: cardSlideUpFade 0.5s var(--ease-out) forwards;
 }
@@ -594,7 +549,6 @@ section {
   }
 }
 
-/* Desktop Expandable See More/Less Controls */
 .see-more-container {
   display: flex;
   justify-content: center;
@@ -622,14 +576,13 @@ section {
   transition: transform var(--trans-fast);
 }
 
-/* Compact Laptop-Friendly Aspect Ratio Visual Viewport */
 .card-preview-viewport {
   position: relative;
   width: 100%;
-  height: 160px; /* Constrained laptop-friendly height limit */
+  height: 160px;
   border-radius: 8px;
   overflow: hidden;
-  background-color: transparent; /* Clean transparent canvas eliminates dark boundaries */
+  background-color: transparent;
   border: 1px solid rgba(255, 255, 255, 0.08);
   margin-bottom: 1.25rem;
   display: flex;
@@ -638,12 +591,11 @@ section {
   transition: height 0.4s var(--ease-out);
 }
 
-/* FIXED: Cover fit stretches images smoothly to erase letterbox black borders */
 .card-img {
   display: none;
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Stretches and fills container perfectly to eliminate black outline frames */
+  object-fit: cover;
   transition: transform 0.4s var(--ease-out);
 }
 
@@ -698,7 +650,6 @@ section {
   overflow: hidden;
 }
 
-/* Underscored action text */
 .card-action-bar {
   display: flex;
   justify-content: space-between;
@@ -714,28 +665,23 @@ section {
 }
 
 .card-chevron {
-  display:inline-flex;
+  display: inline-flex;
   align-items: center;
   transition: transform 0.4s var(--ease-out);
 }
 
-/* ==========================================================================
-   8a. METRO EXPANDED WORKSPACE PANEL (INLINE DETAILS)
-   ========================================================================== */
-/* Base collapsed state: changed from flex to block to prevent Chromium height-calculation thrashing */
 .card-expanded-details {
   max-height: 0;
   opacity: 0;
   overflow: hidden;
   visibility: hidden;
-  display: block; /* Bypasses buggy Chrome flexbox reflow loops */
+  display: block;
   transition: max-height 0.5s var(--ease-out), 
               opacity 0.4s var(--ease-out), 
               margin-top 0.4s var(--ease-out),
               visibility 0s linear 0.5s;
 }
 
-/* Adds margin-gaps between block child elements smoothly */
 .card-expanded-details > * {
   margin-bottom: 1.25rem;
 }
@@ -744,21 +690,19 @@ section {
   margin-bottom: 0;
 }
 
-/* Smooth expansion layout shifts */
 .work-card.expanded {
   border-color: var(--glow-color);
   box-shadow: 0 15px 35px rgba(0, 240, 255, 0.04);
 }
 
 .work-card.expanded .card-preview-viewport {
-  height: 240px; /* Expands viewport box to show larger visuals */
+  height: 240px;
 }
 
 .work-card.expanded .card-collapsed-desc {
-  display: none; /* Hide collapsed summary in place of full expanded paragraphs */
+  display: none;
 }
 
-/* Expanded State */
 .work-card.expanded .card-expanded-details {
   max-height: 1000px;
   opacity: 1;
@@ -779,10 +723,9 @@ section {
   margin-top: 1.5rem;
 }
 
-/* Upgraded sleek segment control switcher buttons */
 .card-tabs {
   display: flex;
-  background: rgba(0, 0, 0, 0.35); /* Ultra dark background matches instrument dashboard controls */
+  background: rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 8px;
   padding: 3px;
@@ -812,12 +755,11 @@ section {
 
 .card-tab-btn.active {
   color: #000000;
-  background-color: var(--glow-color); /* Bright glowing segment indicator */
+  background-color: var(--glow-color);
   font-weight: 700;
   box-shadow: 0 2px 10px rgba(0, 240, 255, 0.2);
 }
 
-/* Static Decoupled Legends (Renders perfectly in Drawer or Cards) */
 .static-legend {
   display: flex;
   flex-direction: column;
@@ -894,7 +836,7 @@ section {
 }
 
 /* ==========================================================================
-   9. INTERACTIVE SHOWCASE DEPLOYMENTS (MAP, SELECTION LISTS, SWIPE, HUD)
+   9. INTERACTIVE SHOWCASE
    ========================================================================== */
 .showcase-wrapper {
   display: grid;
@@ -933,7 +875,7 @@ section {
 .showcase-selector {
   flex-shrink: 0;
   padding: 1.5rem;
-  background-color: #0b101c; /* Solid non-transparent background */
+  background-color: #0b101c;
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   text-align: left;
@@ -942,7 +884,7 @@ section {
 }
 
 .showcase-selector.active {
-  background-color: #111827; /* Rich, solid target contrast */
+  background-color: #111827;
   border-color: var(--glow-color);
   box-shadow: 0 0 25px -5px rgba(0, 240, 255, 0.08);
 }
@@ -971,7 +913,7 @@ section {
   font-weight: 500;
   padding: 0.2rem 0.55rem;
   border-radius: 4px;
-  background-color: rgba(255, 255, 255, 0.03); /* Minimal solid badge backdrop */
+  background-color: rgba(255, 255, 255, 0.03);
   color: var(--text-secondary);
   border: 1px solid rgba(255, 255, 255, 0.08);
   white-space: nowrap;
@@ -985,7 +927,6 @@ section {
   box-shadow: 0 0 10px rgba(0, 240, 255, 0.03);
 }
 
-/* Leaflet GIS Viewer Integration */
 .map-frame {
   position: relative;
   background: #030508;
@@ -1002,14 +943,13 @@ section {
   z-index: 10;
 }
 
-/* Spatial telemetry data HUD overlays */
 .map-overlay-hud {
   position: absolute;
   bottom: 20px;
   left: 20px;
   max-width: 320px;
   padding: 1rem;
-  background: #060913; /* Opaque HUD map widget */
+  background: #060913;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   backdrop-filter: blur(12px);
@@ -1041,7 +981,6 @@ section {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6) !important;
 }
 
-/* Layer Swipe Comparison Controls */
 .map-swipe-container {
   position: absolute;
   inset: 0;
@@ -1075,7 +1014,7 @@ section {
   height: 44px;
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  background: #060913; /* Opaque handle */
+  background: #060913;
   border: 2px solid var(--glow-color);
   box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
   display: flex;
@@ -1093,7 +1032,6 @@ section {
   touch-action: none;
 }
 
-/* Map legend workspace overlays */
 .map-legend-wrapper {
   position: absolute;
   bottom: 20px;
@@ -1103,7 +1041,7 @@ section {
   gap: 0.45rem;
   min-width: 260px;
   padding: 0.80rem 1.10rem;
-  background: #060913; /* Opaque map legend frame */
+  background: #060913;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   backdrop-filter: blur(12px);
@@ -1176,93 +1114,421 @@ section {
 }
 
 /* ==========================================================================
-   10. SCIENTIFIC PUBLICATIONS DISCOVERY DECK
+   10. SCIENTIFIC PUBLICATIONS
    ========================================================================== */
-.publication-grid {
+.pub-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
   width: 100%;
 }
 
-.publication-card {
-  padding: 2.5rem;
-  background-color: #0b101c; /* Solid layout card background */
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  transition: transform var(--trans-fast), border-color var(--trans-fast);
+.pub-card {
+  background: rgba(11, 16, 28, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 2rem;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  min-height: 330px;
   cursor: pointer;
+  transition: transform 0.4s var(--ease-out), 
+              border-color 0.4s var(--ease-out), 
+              box-shadow 0.4s var(--ease-out);
 }
 
-.publication-card .num {
-  display: block;
-  margin-bottom: 1.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  color: var(--glow-color);
-  transition: color var(--trans-theme);
-}
-
-.publication-card h3 {
-  font-size: 1.2rem;
-  line-height: 1.4;
-  margin-bottom: 0.85rem;
-  color: var(--text-primary);
-  max-height: 2.8em;
-  overflow: hidden;
-  display: block;
-  transition: max-height 0.4s var(--ease-out), color var(--trans-fast);
-}
-
-/* FIXED: Replaced standard unknown 'line-weight: 2' syntax with standard WebKit line-clamping directives */
-.publication-card.clamped h3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2; /* Correct standard CSS property */
-  -webkit-box-orient: vertical;
-  text-overflow: ellipsis;
-}
-
-.publication-card.expanded h3 {
-  max-height: 12em;
-}
-
-.publication-publisher {
-  display: block;
-  font-family: var(--font-sans);
-  font-size: 0.78rem;
-  font-weight: 500;
-  font-style: italic;
-  color: var(--text-secondary);
-  opacity: 0.8;
-  margin-top: -0.5rem;
-  margin-bottom: 1rem;
-  line-height: 1.4;
-}
-
-.publication-link {
-  display: inline-flex;
+.pub-card-header {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  align-self: flex-start;
-  gap: 0.35rem;
-  margin-top: auto;
-  padding-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.pub-card-num {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.pub-card-journal {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--glow-color);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.pub-card h3 {
+  font-size: 1.15rem;
+  line-height: 1.45;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pub-card-desc {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+  margin-bottom: auto;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-align: justify;
+}
+
+.pub-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   font-family: var(--font-mono);
   font-size: 0.72rem;
-  font-weight: 500;
   color: var(--glow-color);
-  text-decoration: none;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.pub-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 0.4s var(--ease-out), visibility 0.4s var(--ease-out);
+}
+
+.pub-modal.active {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+}
+
+.pub-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 9, 19, 0.75);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  cursor: zoom-out;
+}
+
+.pub-modal-content {
+  position: relative;
+  width: 90%;
+  max-width: 980px;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: rgba(11, 16, 28, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  padding: 2.5rem;
+  z-index: 10;
+  transform: translateY(30px) scale(0.98);
+  transition: transform 0.4s var(--ease-out);
+  scrollbar-width: thin;
+  scrollbar-color: var(--glow-color) rgba(255, 255, 255, 0.02);
+}
+
+.pub-modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.pub-modal-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.01);
+  border-radius: 10px;
+}
+
+.pub-modal-content::-webkit-scrollbar-thumb {
+  background: var(--glow-color);
+  border-radius: 10px;
+}
+
+.pub-modal.active .pub-modal-content {
+  transform: translateY(0) scale(1);
+}
+
+.pub-modal-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color var(--trans-fast);
+  z-index: 20;
+}
+
+.pub-modal-close:hover {
+  color: var(--text-primary);
+}
+
+.console-header {
+  margin-bottom: 1.5rem;
+}
+
+.console-meta-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.console-badge {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+}
+
+.console-badge-accent {
+  border-color: var(--glow-color);
+  color: var(--glow-color);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.console-pub-title {
+  font-size: 1.45rem;
+  line-height: 1.35;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.console-publisher-info {
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.console-divider {
+  height: 1px;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.15), transparent);
+  margin-bottom: 1.5rem;
+}
+
+.console-body-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 2.25rem;
+}
+
+.console-body-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.console-body-sub-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.console-section-title {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  color: var(--glow-color);
+  letter-spacing: 0.05em;
+  opacity: 0.85;
+}
+
+.console-abstract-text {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  text-align: justify;
+}
+
+.console-tabs {
+  display: flex;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.console-tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  padding: 0.4rem 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: all var(--trans-fast);
+}
+
+.console-tab-btn:hover {
+  color: var(--text-primary);
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.console-tab-btn.active {
+  color: #000000;
+  background-color: var(--glow-color);
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(0, 240, 255, 0.2);
+}
+
+.console-img-viewport {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.console-img-viewport img {
+  display: none;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.9;
   transition: opacity var(--trans-fast);
 }
 
-.publication-link svg {
-  transition: transform var(--trans-fast);
+.console-img-viewport img.active {
+  display: block;
+}
+
+.console-img-viewport img:hover {
+  opacity: 1.0;
+}
+
+.console-highlights-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.console-highlights-list li {
+  position: relative;
+  padding-left: 1.15rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.console-highlights-list li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--glow-color);
+  font-family: var(--font-mono);
+}
+
+.console-img-caption-banner {
+  display: none;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(6, 9, 19, 0.85);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.6rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  z-index: 5;
+}
+
+.console-img-caption-banner.active {
+  display: flex;
+}
+
+.caption-text {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.micro-legend-discrete {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.micro-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+}
+
+.micro-legend-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.micro-legend-continuous {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.micro-legend-bar {
+  width: 60px;
+  height: 6px;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.micro-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--text-secondary);
 }
 
 /* ==========================================================================
-   11. DYNAMIC SKILLS TREE BRANCHES & CONNECTING NODES
+   11. DYNAMIC SKILLS TREE
    ========================================================================== */
 .skills-tree-wrapper {
   display: grid;
@@ -1273,7 +1539,7 @@ section {
 }
 
 .tree-branch {
-  background-color: #0b101c; /* Solid, crisp deep background */
+  background-color: #0b101c;
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 12px;
   padding: 2.25rem;
@@ -1282,7 +1548,6 @@ section {
   transition: transform var(--trans-fast), border-color var(--trans-fast), box-shadow var(--trans-fast);
 }
 
-/* Glassmorphic Flex Header for dynamic align-right Toggle controls */
 .tree-branch-header {
   display: flex !important;
   align-items: center;
@@ -1300,7 +1565,6 @@ section {
   user-select: none;
 }
 
-/* Micro Chevron Indicator */
 .branch-toggle-icon {
   display: inline-flex;
   align-items: center;
@@ -1320,7 +1584,6 @@ section {
   transition: margin-bottom var(--trans-medium);
 }
 
-/* Condensed vertical node margin on collapsed state */
 .tree-branch:not(.expanded) .tree-node {
   margin-bottom: 0.65rem;
 }
@@ -1350,7 +1613,6 @@ section {
   height: 0.65rem;
 }
 
-/* Details wrapper with smooth max-height transitions */
 .node-details {
   max-height: 0;
   opacity: 0;
@@ -1408,7 +1670,7 @@ section {
   display: inline-block;
   font-family: var(--font-mono);
   font-size: 0.62rem;
-  background-color: rgba(255, 255, 255, 0.05); /* Solid sub-badge backdrop */
+  background-color: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   padding: 0.1rem 0.4rem;
   border-radius: 4px;
@@ -1418,7 +1680,7 @@ section {
 }
 
 /* ==========================================================================
-   12. THIRD-PARTY GIS MODULE STYLING OVERRIDES (LEAFLET UI)
+   12. LEAFLET UI OVERRIDES
    ========================================================================== */
 .leaflet-bar {
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -1433,11 +1695,7 @@ section {
 }
 
 /* ==========================================================================
-   13. METADATA DETAIL SLIDE DRAWER SYSTEM (Pruned obsolete drawer codes)
-   ========================================================================== */
-
-/* ==========================================================================
-   14. DESKTOP-ONLY HOVER STYLES & HAPTIC FEEDBACK (MOUSE SYSTEMS)
+   13. DESKTOP INTERACTION STYLES
    ========================================================================== */
 @media (hover: hover) {
   .btn-primary:hover {
@@ -1474,7 +1732,6 @@ section {
     border-color: rgba(255, 255, 255, 0.15);
   }
 
-  /* Optimized interaction state; runs transitions solely on hover selection */
   .leaflet-interactive:hover {
     filter: brightness(1.25) saturate(1.1);
     stroke-width: 2.5px !important;
@@ -1501,10 +1758,16 @@ section {
     border-color: var(--glow-color);
     background: rgba(255, 255, 255, 0.05);
   }
+
+  .pub-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--glow-color);
+    box-shadow: 0 10px 30px rgba(0, 240, 255, 0.04);
+  }
 }
 
 /* ==========================================================================
-   15. CONSOLIDATED RESPONSIVE BREAKPOINTS & LAYOUT SHIFTS
+   14. RESPONSIVE BREAKPOINTS
    ========================================================================== */
 @media (max-width: 1150px) {
   .map-legend-wrapper {
@@ -1514,16 +1777,13 @@ section {
 }
 
 @media (max-width: 968px) {
-  .hero-grid, 
-  .publication-grid, 
+  .pub-grid, 
   .showcase-wrapper,
-  .skills-tree-wrapper,
-  .app-grid {
+  .skills-tree-wrapper {
     grid-template-columns: 1fr;
     gap: 2.5rem;
   }
 
-  /* Adjust central background radial fade boundaries on tablet displays */
   .backdrop-layer {
     mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 1) 25%, rgba(0, 0, 0, 0) 75%);
     -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 1) 25%, rgba(0, 0, 0, 0) 75%);
@@ -1571,50 +1831,84 @@ section {
   .hero-lead {
     font-size: 1.15rem;
   }
+
+  .pub-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .console-body-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
 }
 
 @media (max-width: 768px) {
   .navbar {
-    top: 10px;         /* Floats near the top of the mobile screen */
-    bottom: auto;      /* Prevents bottom docking */
+    top: 10px;
+    bottom: auto;
     left: 50%;
     transform: translateX(-50%);
     width: calc(100% - 20px);
     max-width: 480px;
     height: 52px !important;
     border-radius: 40px;
-    padding: 0 0.5rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); /* Downward shadow projection */
+    padding: 0 1.25rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
   }
 
   .navbar-inner {
     padding: 0;
-    justify-content: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     width: 100%;
   }
 
   .logo {
-    display: none; 
+    display: flex !important;
+    align-items: center;
+  }
+
+  .logo-text {
+    display: none;
   }
 
   .nav-links {
-    width: 100%;
-    justify-content: space-around;
-    gap: 0;
+    display: flex;
+    gap: 0.75rem;
+    list-style: none;
+    align-items: center;
   }
 
   .nav-link {
     font-size: 0.8rem;
     font-weight: 600;
-    padding: 0.6rem 0.5rem;
+    padding: 0.6rem 0.25rem;
     letter-spacing: -0.01em;
   }
 
-  /* Active glow indicators point downwards underneath mobile top tabs */
   .nav-link::after {
-    bottom: -4px;     /* Aligns glow indicator underneath the tab text */
+    bottom: -4px;
     top: auto;
     height: 2px;
+  }
+
+  .hero-stats-panel {
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1.5rem;
+    max-width: 100%;
+  }
+
+  .panel-stat-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(255, 255, 255, 0.15),
+      transparent
+    );
   }
 
   .map-legend-wrapper {
@@ -1625,7 +1919,6 @@ section {
     contain: layout style paint;
   }
 
-  /* Cards display as smooth horizontal carousel snapping track on mobile */
   .work-grid {
     display: flex !important;
     flex-direction: row;
@@ -1663,7 +1956,6 @@ section {
                 flex var(--trans-medium);
   }
 
-  /* Smooth snap adjustments for expanded mobile cards */
   .work-card.expanded {
     flex: 0 0 calc(100vw - 4rem) !important;
     scroll-snap-align: center;
@@ -1671,6 +1963,21 @@ section {
 
   .work-card.expanded .card-preview-viewport {
     height: 180px;
+  }
+}
+
+@media (max-width: 640px) {
+  .pub-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pub-modal-content {
+    padding: 1.5rem;
+    width: 95%;
+  }
+
+  .console-pub-title {
+    font-size: 1.2rem;
   }
 }
 

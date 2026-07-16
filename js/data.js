@@ -402,25 +402,191 @@ export const publications = [
     num: "01 / ARTICLE",
     title: "Exploring optimal integration schemes for Sentinel-1 SAR and Sentinel-2 multispectral data in land cover mapping across different atmospheric conditions",
     publisher: "[Elsevier] Remote Sensing Applications: Society and Environment 2024",
-    description: "Integrating Sentinel-1 SAR with Sentinel-2 multispectral data to overcome cloud and haze, boosting land cover mapping accuracy and efficiency in tropical regions.",
+    shortDesc: "Integrating Sentinel-1 SAR with Sentinel-2 multispectral data to overcome cloud and haze, boosting land cover mapping accuracy and efficiency in tropical regions.",
+    description: `
+      This study evaluates Sentinel-1 SAR and Sentinel-2 optical data integration for land cover mapping in cloud-prone Yogyakarta, Indonesia. 
+      Using Bayesian-optimized XGBoost, four data schemes were analyzed: SAR-only, optical-only, full feature fusion, and RFE-optimized selection.
+      <br><br>
+      Fusing datasets increased accuracy by 14.58% under haze (79.58% overall) and 4.00% under clear skies (84.58%). 
+      Applying RFE optimized processing time by 78.74% (hazy) and 49.89% (clear) with minimal accuracy loss, 
+      while McNemar testing confirmed the statistical significance of SAR integration
+    `,
     linkUrl: "https://doi.org/10.1016/j.rsase.2024.101185",
-    linkText: "Read Article"
+    linkText: "Read Article",
+    images: [
+      { 
+        label: "Input", 
+        url: "./data/images/section_4/paper1_S2Raw.webp", 
+        alt: "Sentinel-2 MSI Reflectance",
+        caption: "Sentinel-2 MSI Reflectance",
+        legend: {
+          type: "discrete",
+          items: [
+            { label: "Hazy Condition", color: "#34d399" }
+          ]
+        }
+      },
+      { 
+        label: "Output Image", 
+        url: "./data/images/section_4/paper1_S2Classified.webp", 
+        alt: "Classified Land Cover",
+        caption: "Land Cover",
+        legend: {
+          type: "discrete",
+          items: [
+            { label: "Water", color: "#1e40af" },
+            { label: "Bareland", color: "#f59e0b" },
+            { label: "Built-Up", color: "#f43f5e" },
+            { label: "Tree/Shrub", color: "#065f46" },
+            { label: "Herb", color: "#34d399" }
+          ]
+        }
+      },
+      { 
+        label: "Output Stats", 
+        url: "./data/images/section_4/paper1_StatsTuning.webp", 
+        alt: "Accuracy Curve",
+        caption: "Accuracy Curve",
+        legend: {
+          type: "discrete",
+          items: [
+            { label: "Optimal Point", color: "#34d399" }
+          ]
+        }
+      },
+    ],
+    highlights: [
+      "Integrating Sentinel-1 (SAR) and Sentinel-2 (Optical) data improves land cover mapping accuracy significantly.",
+      "Applying Recursive Feature Elimination (RFE) to reduce features could triple the processing speed.",
+      "McNemar testing proved that adding radar (SAR) data is statistically critical for accurate land cover mapping in hazy conditions."
+    ]
   },
   {
     num: "02 / ARTICLE",
     title: "Synergistic Integration of LANDSAT-8 and MODIS Data for Enhanced Paddy Phenology Assessment and Crop Frequency Mapping: A Fusion of Phenological Insights and Machine Learning Algorithms",
     publisher: "[Geographia Technica] Technical Geography 2024",
-    description: "Fusing Landsat and MODIS with STARFM and machine learning to map paddy phenology and cropping frequency, delivering dense time-series imagery for food security planning.",
+    shortDesc: "Fusing Landsat and MODIS with STARFM and machine learning to map paddy phenology and cropping frequency, delivering dense time-series imagery for food security planning.",
+    description: `
+      This study evaluates spatiotemporal data fusion (Landsat-8 and MODIS via STARFM) and machine learning to map paddy crop phenology and cropping frequency in Sragen, Indonesia. 
+      Addressing severe cloud cover challenges during La Niña wet climatic conditions, we reconstructed daily EVI and LSWI time-series.
+      <br><br>
+      While Spline interpolation noise reduced rule-based phenology mapping accuracy, Random Forest bypassed these extraction limitations, achieving 100% overall accuracy for cropping frequency. 
+      Crucially, multi-sensor fusion dramatically improved phenology tracking (SOS/EOS) accuracy, cutting the identification error margin from 3-4 months (Landsat-only) to less than 1 month.
+    `,
     linkUrl: "http://dx.doi.org/10.21163/GT_2024.191.09",
-    linkText: "Read Article"
+    linkText: "Read Article",
+    images: [
+      { 
+        label: "Input", 
+        url: "./data/images/section_4/paper2_MODIS_EVI.webp", 
+        alt: "MODIS EVI",
+        caption: "MODIS EVI",
+        legend: {
+          type: "continuous",
+          min: "-1.00",
+          max: "1.00",
+          gradient: "linear-gradient(to right, #d7191c, #fdae61, #ffffc0, #a6d96a, #1a9641)"
+        }
+      },
+      { 
+        label: "Output Image", 
+        url: "./data/images/section_4/paper2_Landsat_EVI.webp", 
+        alt: "Landsat EVI",
+        caption: "Landsat EVI",
+        legend: {
+          type: "continuous",
+          min: "-1.00",
+          max: "1.00",
+          gradient: "linear-gradient(to right, #d7191c, #fdae61, #ffffc0, #a6d96a, #1a9641)"
+        }
+      },
+      { 
+        label: "Output Stats", 
+        url: "./data/images/section_4/paper2_StatsAcc.webp", 
+        alt: "Accuracy Curve",
+        caption: "Accuracy Matrix",
+        legend: {
+          type: "discrete",
+          items: [
+            { label: "Optimal Point", color: "#34d399" }
+          ]
+        }
+      },
+    ],
+    highlights: [
+      "Blended 16-day Landsat-8 (30m) with daily MODIS (500m) using the STARFM algorithm to reconstruct high-frequency daily time-series under cloudy La Niña conditions.",
+      "Improved paddy phenology tracking, reducing the identification error margin (RMSE) from 3-4 months (Landsat-only) to less than 1 month (27.0 days for Start of Season [SOS] and 31.8 days for End of Season [EOS]) using the fused dataset.",
+      "Achieved high overall accuracy in mapping annual cropping frequencies (crop rotations per year) across both datasets using Random Forest classifiers, successfully bypassing noise-sensitive phenology extraction."
+    ]
   },
   {
     num: "03 / ORAL PRESENTATION",
     title: "Deriving Urban Footprint and Simulating Future Growth with GIS-Based Analysis in Bali Island",
     publisher: "[IRSA] The 20th Conference 2025",
-    description: "Modeling Bali's urban footprint with Landsat-based LCM and Markov simulations, projecting built-up growth to 2045 and aligning scenarios with spatial planning policies.",
+    shortDesc: "Modeling Bali's urban footprint with Landsat-based LCM and Markov simulations, projecting built-up growth to 2045 and aligning scenarios with spatial planning policies.",
+    description: `
+      This study maps the historical urban footprint of Bali Island from 2001 to 2025 using Landsat classification and simulates future built-up expansion until 2045 using CA-Markov modeling. 
+      Incorporating biophysical, demographic, and economic drivers, the models achieved an overall validation accuracy of 96.87% (Kappa 0.9479).
+      <br><br>
+      Projections reveal built-up areas will nearly double, 
+      rising from 12.01% in 2025 to 21.04% in 2045, heavily concentrated in the Sarbagita metropolitan area. This expansion corresponds with massive conversion of vegetation, 
+      including a 5.72% decline in tree cover, highlighting the urgent need for adaptive spatial planning.
+    `,
     linkUrl: "https://semarang2025.irsa.or.id/wp-content/uploads/2025/07/Conference-Agenda_2July2025.pdf",
-    linkText: "Conference Agenda"
+    linkText: "Conference Agenda",
+    images: [
+      { 
+        label: "Input", 
+        url: "./data/images/section_4/paper3_LCExisting.webp", 
+        alt: "Existing LC",
+        caption: "Existing LC",
+        legend: {
+          type: "discrete",
+          items: [
+            { label: "Water", color: "#386cb0" },
+            { label: "Impervious", color: "#ff0000" },
+            { label: "Land", color: "#68666b" },
+            { label: "Tree", color: "#336600" },
+            { label: "Shrub", color: "#28a765" },
+            { label: "Herb", color: "#ffff99" },
+          ]
+        }
+      },
+      { 
+        label: "Output Image", 
+        url: "./data/images/section_4/paper3_LCFuture.webp", 
+        alt: "Future LC",
+        caption: "Future LC",
+        legend: {
+          type: "discrete",
+          items: [
+            { label: "Water", color: "#386cb0" },
+            { label: "Impervious", color: "#ff0000" },
+            { label: "Land", color: "#68666b" },
+            { label: "Tree", color: "#336600" },
+            { label: "Shrub", color: "#28a765" },
+            { label: "Herb", color: "#ffff99" },
+          ]
+        }
+      },
+      { 
+        label: "Output Stats", 
+        url: "./data/images/section_4/paper3_StatsAcc.webp", 
+        alt: "Accuracy Matrix",
+        caption: "Accuracy Matrix",
+        legend: {
+          type: "discrete",
+          items: [
+            { label: "Overall Accuracy", color: "#34d399" }
+          ]
+        }
+      },
+    ],
+    highlights: [
+      "Impervious surfaces are projected to rise from 12.01% (67,055 ha) in 2025 to 21.04% (117,475 ha) by 2045.",
+      "Development is heavily concentrated in the Sarbagita metropolitan region (Denpasar, Badung, Gianyar, and Tabanan), driven by a 5% projected annual increase in tourist arrivals and a 2% annual population growth.",
+      "The CA-Markov and Multi-Criteria Evaluation (MCE) suitability workflow achieved a strong validation accuracy of 96.87% (Kappa Index of 0.9479)."
+    ]
   }
 ];
 

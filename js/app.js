@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ==========================================================================
-   PHASE 1: GLOBAL LAYOUT AND STYLING SYSTEMS
+   GLOBAL LAYOUT AND STYLING SYSTEMS
    ========================================================================= */
 function initPageThemeEngine() {
   const sections = Array.from(document.querySelectorAll('section'));
@@ -36,8 +36,7 @@ function initPageThemeEngine() {
     threshold: [0, 0.1, 0.2, 0.5, 0.8, 1.0]
   };
 
-  // Track currently visible sections and their exact visibility ratios inside a DOM Map [app.js]
-  let visibleSections = new Map();
+  const visibleSections = new Map();
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -48,7 +47,6 @@ function initPageThemeEngine() {
       }
     });
 
-    // Find the visible section holding the highest layout ratio on viewport
     let maxRatio = -1;
     let activeId = '';
     
@@ -59,7 +57,6 @@ function initPageThemeEngine() {
       }
     });
 
-    // Failsafe 1: If scrolled near the absolute top, force 'hero' states instantly
     if (window.scrollY <= 50) {
       activeId = 'hero';
     }
@@ -75,7 +72,6 @@ function initPageThemeEngine() {
 
       navLinks.forEach(link => {
         const href = link.getAttribute('href') || '';
-        // FIXED: Extracts cleanly hash anchors of active targets, resolving any full absolute URL matching errors on scrollspy
         const hash = href.includes('#') ? '#' + href.split('#')[1] : href;
         link.classList.toggle('active', hash === `#${activeId}`);
       });
@@ -84,10 +80,9 @@ function initPageThemeEngine() {
 
   sections.forEach(section => observer.observe(section));
 
-  // Failsafe 2: Lightweight scroll listener guarantees top theme snaps back with zero lag
-  window.addEventListener('scroll', () => {
+  const resetToHero = () => {
     if (window.scrollY <= 50) {
-      const theme = themes['hero'];
+      const theme = themes.hero;
       const rootStyle = document.documentElement.style;
       rootStyle.setProperty('--page-bg', theme.bg);
       rootStyle.setProperty('--glow-color', theme.glow);
@@ -98,7 +93,9 @@ function initPageThemeEngine() {
         link.classList.toggle('active', hash === '#hero');
       });
     }
-  }, { passive: true });
+  };
+
+  window.addEventListener('scroll', resetToHero, { passive: true });
 }
 
 function initNavbarScrollEngine() {
@@ -113,7 +110,7 @@ function initNavbarScrollEngine() {
 }
 
 /* ==========================================================================
-   PHASE 2: SECTION - HERO NODES
+   SECTION - HERO NODES
    ========================================================================= */
 function initHeroStats() {
   const statsMapping = [
@@ -135,7 +132,7 @@ function initSpatialBackdrop() {
 }
 
 /* ==========================================================================
-   PHASE 3: SECTION - STATIC SHOWCASE (GLASS METRO GRID CATALOG WITH FILTERS)
+   SECTION - STATIC CATALOG (WORK DISPLAY)
    ========================================================================= */
 function initStaticShowcase() {
   const workSection = document.getElementById('work');
@@ -144,7 +141,6 @@ function initStaticShowcase() {
 
   if (!workContainer || !Array.isArray(services) || services.length === 0) return;
 
-  // Append dynamic category filters [index.html, data.js]
   const filterWrapper = document.createElement('div');
   filterWrapper.className = 'work-filters-container';
   
@@ -160,7 +156,6 @@ function initStaticShowcase() {
   `;
   workSection.querySelector('.container').insertBefore(filterWrapper, workContainer);
 
-  // Append "See More" sequential controller layout [main.css, app.js]
   const seeMoreContainer = document.createElement('div');
   seeMoreContainer.className = 'see-more-container';
   const seeMoreBtn = document.createElement('button');
@@ -172,34 +167,36 @@ function initStaticShowcase() {
   let isSeeMoreExpanded = false;
   const INITIAL_LIMIT = 6;
 
-  // Fully decoupled static legend formatting engine
   const buildLegendHtml = (legend) => {
     if (!legend) return '';
-    let html = `<div class="static-legend">`;
     if (legend.type === 'continuous') {
-      html += `
-        <div class="static-legend-continuous">
-          <div class="static-legend-bar" style="background: ${legend.gradient}"></div>
-          <div class="static-legend-labels">
-            <span>${legend.min}</span>
-            <span>${legend.max}</span>
+      return `
+        <div class="static-legend">
+          <div class="static-legend-continuous">
+            <div class="static-legend-bar" style="background: ${legend.gradient}"></div>
+            <div class="static-legend-labels">
+              <span>${legend.min}</span>
+              <span>${legend.max}</span>
+            </div>
           </div>
         </div>
       `;
-    } else if (legend.type === 'discrete' && Array.isArray(legend.items)) {
-      html += `<div class="static-legend-discrete">`;
-      legend.items.forEach(item => {
-        html += `
-          <span class="static-legend-item">
-            <span class="static-legend-dot" style="background-color: ${item.color}"></span>
-            ${item.label}
-          </span>
-        `;
-      });
-      html += `</div>`;
     }
-    html += `</div>`;
-    return html;
+    if (legend.type === 'discrete' && Array.isArray(legend.items)) {
+      return `
+        <div class="static-legend">
+          <div class="static-legend-discrete">
+            ${legend.items.map(item => `
+              <span class="static-legend-item">
+                <span class="static-legend-dot" style="background-color: ${item.color}"></span>
+                ${item.label}
+              </span>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+    return '';
   };
 
   const isCardVisible = (card) => {
@@ -218,7 +215,6 @@ function initStaticShowcase() {
     const cards = Array.from(workContainer.querySelectorAll('.work-card'));
     const matchingCards = [];
 
-    // Filter cards first without stripping hidden states
     cards.forEach(card => {
       const matches = currentFilter === 'All' || card.getAttribute('data-tag') === currentFilter;
       if (matches) {
@@ -226,14 +222,13 @@ function initStaticShowcase() {
         matchingCards.push(card);
       } else {
         card.classList.add('filtered-out');
-        card.classList.add('limit-hidden'); // Hide filtered items immediately
+        card.classList.add('limit-hidden');
       }
     });
 
     const isMobile = window.innerWidth <= 768;
 
     if (isMobile) {
-      // Mobile displays all cards natively
       matchingCards.forEach(card => {
         card.classList.remove('limit-hidden');
         card.classList.remove('collapsing-anim');
@@ -251,11 +246,10 @@ function initStaticShowcase() {
         } else {
           if (isSeeMoreExpanded) {
             card.classList.remove('limit-hidden');
-            void card.offsetWidth; // Force a clean browser paint
+            void card.offsetWidth;
             card.classList.add('revealing-anim');
             card.classList.remove('collapsing-anim');
           } else {
-            // Only trigger collapse animations if the card is currently visible
             if (!card.classList.contains('limit-hidden') && !card.classList.contains('collapsing-anim')) {
               card.classList.add('collapsing-anim');
               card.classList.remove('revealing-anim');
@@ -302,7 +296,6 @@ function initStaticShowcase() {
     let imagesHtml = '';
     let tabsHtml = '';
 
-    // Properly maps cover image alongside all supplementary project perspectives
     if (hasViews) {
       imagesHtml = `
         <img src="${service.imageUrl}" alt="${service.imageAlt} - Cover" class="card-img active" data-view-idx="cover" />
@@ -355,14 +348,11 @@ function initStaticShowcase() {
       </div>
     `;
 
-    // Inline details expansion handler
     card.addEventListener('click', (e) => {
-      // Prevent toggling expansion state when interacting with perspective switcher buttons
       if (e.target.closest('.card-tab-btn')) return;
 
       const isCollapsing = card.classList.contains('expanded');
       
-      // Close any other open cards to keep viewport layout tidy
       workContainer.querySelectorAll('.work-card').forEach(c => {
         if (c !== card) {
           c.classList.remove('expanded');
@@ -372,7 +362,6 @@ function initStaticShowcase() {
       card.classList.toggle('expanded');
       updateRevealButtonText();
 
-      // Eradicate horizontal snapping offsets on touch devices
       if (!isCollapsing && window.innerWidth <= 768) {
         setTimeout(() => {
           card.scrollIntoView({ 
@@ -384,7 +373,6 @@ function initStaticShowcase() {
       }
     });
 
-    // Image Perspective switcher tab handlers
     if (hasViews) {
       const tabBtns = card.querySelectorAll('.card-tab-btn');
       const viewImgs = card.querySelectorAll('.card-img');
@@ -407,7 +395,6 @@ function initStaticShowcase() {
 
   workContainer.appendChild(fragment);
 
-  // Bind Dynamic Category Filter events
   filterWrapper.addEventListener('click', (e) => {
     const btn = e.target.closest('.filter-btn');
     if (!btn) return;
@@ -421,15 +408,11 @@ function initStaticShowcase() {
     renderCatalog();
   });
 
-  // FIXED: Butter-smooth scroll momentum shifts back to the top of Rollouts first before triggering collapse
   seeMoreBtn.addEventListener('click', () => {
     isSeeMoreExpanded = !isSeeMoreExpanded;
     
     if (!isSeeMoreExpanded) {
-      // Scroll to top first to avoid snappy viewport drops
       workSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      
-      // Slight delay ensures scroll momentum begins before collapse anim triggers
       setTimeout(() => {
         renderCatalog();
       }, 150);
@@ -438,7 +421,6 @@ function initStaticShowcase() {
     }
   });
 
-  // FIXED: Master button toggles expansion parameters on all currently visible cards simultaneously
   if (revealAllBtn) {
     revealAllBtn.addEventListener('click', () => {
       const visibleCards = Array.from(workContainer.querySelectorAll('.work-card')).filter(isCardVisible);
@@ -447,7 +429,6 @@ function initStaticShowcase() {
       visibleCards.forEach(card => {
         card.classList.toggle('expanded', hasCollapsedCard);
         
-        // Return active view switcher tabs back to cover if collapsing
         if (!hasCollapsedCard) {
           const coverImg = card.querySelector('.card-img[data-view-idx="cover"]');
           const viewImgs = card.querySelectorAll('.card-img');
@@ -467,15 +448,20 @@ function initStaticShowcase() {
     });
   }
 
+  // Prevent resize loops trigger on mobile scroll shifts (address bar changes)
+  let lastWidth = window.innerWidth;
   window.addEventListener('resize', () => {
-    renderCatalog();
+    if (window.innerWidth !== lastWidth) {
+      lastWidth = window.innerWidth;
+      renderCatalog();
+    }
   }, { passive: true });
 
   renderCatalog();
 }
 
 /* ==========================================================================
-   PHASE 4: SECTION - INTERACTIVE SPATIAL WORKSPACE (SHOWCASE)
+   SECTION - INTERACTIVE SHOWCASE
    ========================================================================= */
 function initInteractiveShowcase() {
   const listContainer = document.getElementById('showcase-selectors');
@@ -491,9 +477,7 @@ function initInteractiveShowcase() {
     selectorCard.setAttribute('role', 'tab');
     selectorCard.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
 
-    const badgesList = Array.isArray(proj.badges) 
-      ? proj.badges 
-      : (proj.badge ? [proj.badge] : []);
+    const badgesList = Array.isArray(proj.badges) ? proj.badges : (proj.badge ? [proj.badge] : []);
 
     selectorCard.innerHTML = `
       <div class="selector-header">
@@ -523,77 +507,221 @@ function initInteractiveShowcase() {
 }
 
 /* ==========================================================================
-   PHASE 5: SECTION - DYNAMIC PUBLICATIONS
+   SECTION - SCIENTIFIC PUBLICATIONS
    ========================================================================= */
 function initPublications() {
-  const publicationsContainer = document.getElementById('publications-list');
-  if (!publicationsContainer || !Array.isArray(publications)) return;
+  const gridContainer = document.getElementById('publications-grid');
+  const modalEl = document.getElementById('pub-reader-modal');
+  const modalBody = document.getElementById('pub-modal-body-content');
+  const closeBtn = document.getElementById('pub-modal-close-btn');
+  const closeBackdrop = document.getElementById('pub-modal-close-backdrop');
 
-  publicationsContainer.innerHTML = '';
+  if (!gridContainer || !modalEl || !modalBody || !Array.isArray(publications)) return;
+
+  gridContainer.innerHTML = '';
   const fragment = document.createDocumentFragment();
 
-  publications.forEach(pub => {
+  publications.forEach((pub) => {
+    const [numStr, typeStr] = pub.num.split('/').map(s => s.trim());
+    const journalMatch = pub.publisher.match(/\[(.*?)\]/);
+    const journalTag = journalMatch ? journalMatch[1] : 'PUBLICATION';
+
     const card = document.createElement('div');
-    card.className = 'publication-card clamped';
-    
-    let cardContent = `
-      <span class="num">${pub.num}</span>
+    card.className = 'pub-card';
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+
+    card.innerHTML = `
+      <div class="pub-card-header">
+        <span class="pub-card-num">${numStr}</span>
+        <span class="pub-card-journal">${journalTag}</span>
+      </div>
       <h3>${pub.title}</h3>
-      <span class="publication-publisher">${pub.publisher}</span>
-      <p>${pub.description}</p>
+      <p class="pub-card-desc">${pub.shortDesc || pub.description}</p>
+      <div class="pub-card-footer">
+        <span>${typeStr || 'PUBLICATION'}</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </div>
     `;
 
-    if (pub.linkUrl) {
-      cardContent += `
-        <a href="${pub.linkUrl}" target="_blank" rel="noopener noreferrer" class="publication-link">
-          ${pub.linkText || 'Read Paper'}
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="7" y1="17" x2="17" y2="7"></line>
-            <polyline points="7 7 17 7 17 17"></polyline>
-          </svg>
-        </a>
-      `;
-    }
-
-    card.innerHTML = cardContent;
-    card._transitionTimeout = null;
-
-    card.addEventListener('click', () => {
-      if (card._transitionTimeout) {
-        clearTimeout(card._transitionTimeout);
-        card._transitionTimeout = null;
-      }
-
-      const isExpanded = card.classList.contains('expanded');
-
-      if (isExpanded) {
-        card.classList.remove('expanded');
-        card._transitionTimeout = setTimeout(() => {
-          if (!card.classList.contains('expanded')) {
-            card.classList.add('clamped');
-          }
-        }, 400); 
-      } else {
-        card.classList.remove('clamped'); 
-        card.classList.add('expanded');  
+    card.addEventListener('click', () => openReader(pub));
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openReader(pub);
       }
     });
-
-    const paperLink = card.querySelector('.publication-link');
-    if (paperLink) {
-      paperLink.addEventListener('click', (e) => {
-        e.stopPropagation();
-      });
-    }
 
     fragment.appendChild(card);
   });
 
-  publicationsContainer.appendChild(fragment);
+  gridContainer.appendChild(fragment);
+
+  const openReader = (pub) => {
+    const [_, typeStr] = pub.num.split('/').map(s => s.trim());
+    const journalMatch = pub.publisher.match(/\[(.*?)\]/);
+    const journalTag = journalMatch ? journalMatch[1] : 'PUBLICATION';
+    const cleanPublisher = pub.publisher.replace(/\[.*?\]/, '').trim();
+
+    const imgs = Array.isArray(pub.images) && pub.images.length > 0
+      ? pub.images 
+      : (pub.imageUrl ? [{ url: pub.imageUrl, label: "Analytical Figure", alt: pub.imageAlt }] : []);
+
+    const buildMicroLegendHtml = (legend) => {
+      if (!legend) return '';
+      if (legend.type === 'discrete' && Array.isArray(legend.items)) {
+        return `
+          <div class="micro-legend-discrete">
+            ${legend.items.map(item => `
+              <span class="micro-legend-item">
+                <span class="micro-legend-dot" style="background-color: ${item.color};"></span>
+                ${item.label}
+              </span>
+            `).join('')}
+          </div>
+        `;
+      }
+      if (legend.type === 'continuous') {
+        return `
+          <div class="micro-legend-continuous">
+            <span class="micro-label">${legend.min}</span>
+            <div class="micro-legend-bar" style="background: ${legend.gradient}"></div>
+            <span class="micro-label">${legend.max}</span>
+          </div>
+        `;
+      }
+      return '';
+    };
+
+    let visualViewportHtml = '';
+    if (imgs.length > 0) {
+      let tabsHtml = '';
+      if (imgs.length > 1) {
+        tabsHtml = `
+          <div class="console-tabs">
+            ${imgs.map((img, idx) => `
+              <button class="console-tab-btn ${idx === 0 ? 'active' : ''}" data-view-idx="${idx}">
+                ${img.label || `Figure ${idx + 1}`}
+              </button>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      visualViewportHtml = `
+        <div class="console-body-sub-section">
+          <div class="console-section-title font-mono">Analytical Visuals</div>
+          ${tabsHtml}
+          <div class="console-img-viewport">
+            ${imgs.map((img, idx) => `
+              <img src="${img.url}" class="console-img ${idx === 0 ? 'active' : ''}" data-view-idx="${idx}" onerror="this.style.display='none';" alt="${img.alt || pub.title}" />
+            `).join('')}
+            ${imgs.map((img, idx) => `
+              <div class="console-img-caption-banner ${idx === 0 ? 'active' : ''}" data-view-idx="${idx}">
+                <span class="caption-text">${img.caption || img.label}</span>
+                ${img.legend ? buildMicroLegendHtml(img.legend) : ''}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    const highlightsHtml = Array.isArray(pub.highlights) 
+      ? `
+        <div class="console-body-sub-section">
+          <div class="console-section-title font-mono">Key Highlights</div>
+          <ul class="console-highlights-list">
+            ${pub.highlights.map(pt => `<li>${pt}</li>`).join('')}
+          </ul>
+        </div>
+      `
+      : '';
+
+    modalBody.innerHTML = `
+      <div class="console-header">
+        <div class="console-meta-row">
+          <span class="console-badge font-mono">${typeStr || 'PUBLICATION'}</span>
+          <span class="console-badge console-badge-accent font-mono">${journalTag}</span>
+        </div>
+        <h3 class="console-pub-title">${pub.title}</h3>
+        <div class="console-publisher-info">${cleanPublisher}</div>
+      </div>
+
+      <div class="console-divider"></div>
+
+      <div class="console-body-grid">
+        <div class="console-body-section">
+          <div class="console-section-title font-mono">Abstract & Summary</div>
+          <p class="console-abstract-text">${pub.description}</p>
+          
+          <div class="console-gateway-action">
+            <a href="${pub.linkUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="border-color: var(--glow-color); margin-top: 1rem; width: 100%; justify-content: center;">
+              ${pub.linkText || 'Read Paper'}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="7" y1="17" x2="17" y2="7"></line>
+                <polyline points="7 7 17 7 17 17"></polyline>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="console-body-section">
+          ${visualViewportHtml}
+          ${highlightsHtml}
+        </div>
+      </div>
+    `;
+
+    if (imgs.length > 1) {
+      const tabBtns = modalBody.querySelectorAll('.console-tab-btn');
+      const viewImgs = modalBody.querySelectorAll('.console-img');
+      const viewBanners = modalBody.querySelectorAll('.console-img-caption-banner');
+
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const targetIdx = btn.getAttribute('data-view-idx');
+          tabBtns.forEach(b => b.classList.toggle('active', b === btn));
+          viewImgs.forEach(img => {
+            const imgIdx = img.getAttribute('data-view-idx');
+            img.classList.toggle('active', imgIdx === targetIdx);
+          });
+          viewBanners.forEach(banner => {
+            const bannerIdx = banner.getAttribute('data-view-idx');
+            banner.classList.toggle('active', bannerIdx === targetIdx);
+          });
+        });
+      });
+    }
+
+    modalEl.classList.add('active');
+    modalEl.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeReader = () => {
+    modalEl.classList.remove('active');
+    modalEl.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    setTimeout(() => {
+      modalBody.innerHTML = '';
+    }, 400);
+  };
+
+  closeBtn.addEventListener('click', closeReader);
+  closeBackdrop.addEventListener('click', closeReader);
+  
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modalEl.classList.contains('active')) {
+      closeReader();
+    }
+  });
 }
 
 /* ==========================================================================
-   PHASE 6: SECTION - OTHER (CAPABILITIES)
+   SECTION - OTHER (CAPABILITIES)
    ========================================================================= */
 function initOther() {
   const container = document.getElementById('capabilities-tree');
@@ -653,11 +781,7 @@ function initOther() {
 
       const detailsList = branchDiv.querySelectorAll('.node-details');
       detailsList.forEach(details => {
-        if (isExpanding) {
-          details.style.maxHeight = `${details.scrollHeight}px`;
-        } else {
-          details.style.maxHeight = '0px';
-        }
+        details.style.maxHeight = isExpanding ? `${details.scrollHeight}px` : '0px';
       });
     });
 

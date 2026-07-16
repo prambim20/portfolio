@@ -1,24 +1,24 @@
 import { services } from './data.js';
 
-/**
- * Living Spatial Backdrop Engine
- * Collects product output maps from your static work catalogs and structures 
- * an ambient, low-contrast slides loop masked into the page background.
- */
 export class SpatialBackdropEngine {
   constructor(containerId) {
     this.container = document.getElementById(containerId);
     if (!this.container || !Array.isArray(services)) return;
 
-    // Collect all valid service output renders
     this.images = services
-      .map(service => service.imageUrl)
-      .filter(url => url && typeof url === 'string');
+      .map(service => {
+        const url = service.imageUrl;
+        if (url && /cover/i.test(url) && Array.isArray(service.views) && service.views.length > 0) {
+          return service.views[0].url;
+        }
+        return url;
+      })
+      .filter(url => typeof url === 'string' && url.length > 0 && !/cover/i.test(url));
 
     this.layers = [];
     this.activeIdx = 0;
     this.intervalId = null;
-    this.transitionTime = 8000; // Duration per slide display cycle (in ms)
+    this.transitionTime = 8000;
 
     this.buildBackdropLayers();
     this.startLoop();
@@ -27,8 +27,6 @@ export class SpatialBackdropEngine {
   buildBackdropLayers() {
     this.container.innerHTML = '';
     const fragment = document.createDocumentFragment();
-
-    // Max out at 6 backgrounds to minimize memory footprint
     const backdropsCount = Math.min(6, this.images.length);
 
     for (let i = 0; i < backdropsCount; i++) {
@@ -47,18 +45,9 @@ export class SpatialBackdropEngine {
     if (this.layers.length === 0) return;
 
     const transition = () => {
-      // Remove class active states to reverse transitions smoothly
       this.layers.forEach((layer, i) => {
-        if (i !== this.activeIdx) {
-          layer.classList.remove('active');
-        }
+        layer.classList.toggle('active', i === this.activeIdx);
       });
-
-      // Target next background slide
-      const activeLayer = this.layers[this.activeIdx];
-      activeLayer.classList.add('active');
-
-      // Shift index forward
       this.activeIdx = (this.activeIdx + 1) % this.layers.length;
     };
 
