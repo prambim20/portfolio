@@ -508,7 +508,7 @@ export const publications = [
         legend: {
           type: "discrete",
           items: [
-            { label: "Optimal Point", color: "#34d399" }
+            { label: "Overall Accuracy", color: "#34d399" }
           ]
         }
       },
