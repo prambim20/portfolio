@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Works</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Prefetch map asset and tile server hostnames -->
+  <link rel="dns-prefetch" href="https://unpkg.com">
+  <link rel="dns-prefetch" href="https://basemaps.cartocdn.com">
+  <link rel="dns-prefetch" href="https://a.basemaps.cartocdn.com">
+  <link rel="dns-prefetch" href="https://b.basemaps.cartocdn.com">
+  <link rel="dns-prefetch" href="https://c.basemaps.cartocdn.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <script type="module" crossorigin src="/assets/main-TRu5MQKr.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/main-BRo1khCi.css">
+</head>
+<body>
+
+  <!-- Ambient Backdrop Layers -->
+  <div class="spatial-backdrop-wrapper" aria-hidden="true">
+    <div class="spatial-backdrop" id="spatial-backdrop"></div>
+    <div class="spatial-backdrop-overlay"></div>
+  </div>
+  <div class="grid-backdrop" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="glow-backdrop" aria-hidden="true"></div>
+
+  <!-- Navigation -->
+  <nav class="navbar" aria-label="Main Navigation">
+    <div class="navbar-inner">
+      <a href="#hero" class="logo">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="logo-icon" aria-hidden="true">
+          <ellipse cx="8" cy="8" rx="4" ry="4" fill="var(--glow-color)" />
+          <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5" opacity="0.3" />
+        </svg>
+        <span class="logo-text">SpatiaLive</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#hero" class="nav-link active">Home</a></li>
+        <li><a href="#work" class="nav-link">Catalogue</a></li>
+        <li><a href="#showcase" class="nav-link">Showcase</a></li>
+        <li><a href="#publication" class="nav-link">Publication</a></li>
+        <li><a href="#other" class="nav-link">Other</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Section: Hero -->
+  <section id="hero" aria-labelledby="hero-title">
+    <div class="container hero-centered">
+      <div class="hero-badge">GEOSPATIAL CONTENTS</div>
+      <h1 id="hero-title">Doing the Work.<br>By Mapping the World.</h1>
+      
+      <p class="hero-lead">
+        Welcome to my portfolio. This is where I share the projects I've built, from geospatial analysis to environmental mapping and workflow automation. 
+        Each piece reflects my approach to solving spatial challenges with practical methods and clear results.
+      </p>
+      
+      <div class="hero-cta-group">
+        <a href="#showcase" class="btn btn-primary">
+          View Interactive Showcase
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </a>
+        <a href="#work" class="btn btn-outline">Explore Static Catalog</a>
+      </div>
+
+      <div class="hero-stats-panel" role="region" aria-label="Platform Statistics">
+        <div class="panel-stat">
+          <span class="stat-num" id="project-count">—</span>
+          <span class="stat-label">Interactive Showcases</span>
+        </div>
+        <div class="panel-stat-divider" aria-hidden="true"></div>
+        <div class="panel-stat">
+          <span class="stat-num" id="catalog-count">—</span>
+          <span class="stat-label">Static Catalogues</span>
+        </div>
+        <div class="panel-stat-divider" aria-hidden="true"></div>
+        <div class="panel-stat">
+          <span class="stat-num" id="publication-count">—</span>
+          <span class="stat-label">Scientific Publications</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section: Work -->
+  <section id="work" class="work-section" aria-labelledby="work-title">
+    <div class="container">
+      <div class="section-header">
+        <span class="tag">Work</span>
+        <h2 id="work-title">Catalogues</h2>
+        <p>A static catalogue of geospatial projects and analytical outputs, showcasing methods and results across varied applications.</p>
+        <button id="btn-reveal-all" class="btn btn-outline" style="margin-top: 1.25rem;">Reveal All Details</button>
+      </div>
+
+      <div class="work-grid" id="work-catalog"></div>
+    </div>
+  </section>
+
+  <!-- Section: Showcase -->
+  <section id="showcase" aria-labelledby="showcase-title">
+    <div class="container">
+      <div class="section-header">
+        <span class="tag">Work</span>
+        <h2 id="showcase-title">Showcases</h2>
+        <p>Select a layer to view project outputs in the spatial viewer. Each dataset highlights model results prepared for display.</p>
+      </div>
+      
+      <div class="showcase-wrapper">
+        <div class="showcase-list" id="showcase-selectors" role="tablist" aria-label="Deployment selectors"></div>
+
+        <div class="map-frame" role="region" aria-label="Interactive Map Workspace">
+          <div id="map"></div>
+          <div class="map-overlay-hud">
+            <h4 id="hud-title">Loading Layer...</h4>
+            <p id="hud-coords">—</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section: Publication -->
+  <section id="publication" aria-labelledby="pub-title">
+    <div class="container">
+      <div class="section-header">
+        <span class="tag">Publication</span>
+        <h2 id="pub-title">Scientific Outputs</h2>
+        <p>Scientific outputs covering geospatial methods, remote sensing, and computational approaches.</p>
+      </div>
+
+      <div class="pub-grid" id="publications-grid"></div>
+    </div>
+  </section>
+
+  <!-- Reader Modal Overlay -->
+  <div class="pub-modal" id="pub-reader-modal" aria-hidden="true" role="dialog">
+    <div class="pub-modal-backdrop" id="pub-modal-close-backdrop"></div>
+    <div class="pub-modal-content">
+      <button class="pub-modal-close" id="pub-modal-close-btn" aria-label="Close Reader">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <div class="pub-modal-body" id="pub-modal-body-content"></div>
+    </div>
+  </div>
+
+  <!-- Section: Other -->
+  <section id="other" aria-labelledby="other-title">
+    <div class="container">
+      <div class="section-header">
+        <span class="tag">Other</span>
+        <h2 id="other-title">Boring Skills</h2>
+        <p>While not glamorous like AI-related products, these foundational skills are actually being the core of daily work.</p>
+      </div>
+      <div class="skills-tree-wrapper" id="capabilities-tree"></div>
+    </div>
+  </section>
+
+  <!-- External Map Scripts -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
+  
+  <!-- Module Scripts -->
+</body>
+</html>
