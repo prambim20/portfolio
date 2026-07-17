@@ -298,10 +298,10 @@ function initStaticShowcase() {
 
     if (hasViews) {
       imagesHtml = `
-        <img src="${service.imageUrl}" alt="${service.imageAlt} - Cover" class="card-img active" data-view-idx="cover" />
+        <img src="${service.imageUrl}" alt="${service.imageAlt} - Cover" class="card-img active" data-view-idx="cover" loading="lazy" decoding="async" />
       `;
       imagesHtml += service.views.map((view, idx) => `
-        <img src="${view.url}" onerror="this.onerror=null; this.src='${service.imageUrl}';" alt="${service.imageAlt} - ${view.label}" class="card-img" data-view-idx="${idx}" />
+        <img src="${view.url}" onerror="this.onerror=null; this.src='${service.imageUrl}';" alt="${service.imageAlt} - ${view.label}" class="card-img" data-view-idx="${idx}" loading="lazy" decoding="async" />
       `).join('');
 
       tabsHtml = `
@@ -313,7 +313,7 @@ function initStaticShowcase() {
         </div>
       `;
     } else {
-      imagesHtml = `<img src="${service.imageUrl}" alt="${service.imageAlt}" class="card-img active" />`;
+      imagesHtml = `<img src="${service.imageUrl}" alt="${service.imageAlt}" class="card-img active" loading="lazy" decoding="async" />`;
     }
 
     card.innerHTML = `
@@ -448,7 +448,6 @@ function initStaticShowcase() {
     });
   }
 
-  // Prevent resize loops trigger on mobile scroll shifts (address bar changes)
   let lastWidth = window.innerWidth;
   window.addEventListener('resize', () => {
     if (window.innerWidth !== lastWidth) {
@@ -465,11 +464,11 @@ function initStaticShowcase() {
    ========================================================================= */
 function initInteractiveShowcase() {
   const listContainer = document.getElementById('showcase-selectors');
-  if (!listContainer || !Array.isArray(projects) || projects.length === 0) return;
+  const mapFrame = document.querySelector('.map-frame');
 
-  const mapEngine = new MapEngine('map', projects[0].coords, projects[0].zoom);
+  if (!listContainer || !mapFrame || !Array.isArray(projects) || projects.length === 0) return;
+
   const fragment = document.createDocumentFragment();
-
   projects.forEach((proj, index) => {
     const selectorCard = document.createElement('div');
     selectorCard.className = `showcase-selector ${index === 0 ? 'active' : ''}`;
@@ -489,21 +488,40 @@ function initInteractiveShowcase() {
       <p>${proj.description}</p>
     `;
 
-    selectorCard.addEventListener('click', () => {
-      listContainer.querySelectorAll('.showcase-selector').forEach(c => {
-        c.classList.remove('active');
-        c.setAttribute('aria-selected', 'false');
-      });
-      selectorCard.classList.add('active');
-      selectorCard.setAttribute('aria-selected', 'true');
-      mapEngine.renderProjectLayer(proj);
-    });
-
     fragment.appendChild(selectorCard);
   });
-
   listContainer.appendChild(fragment);
-  mapEngine.renderProjectLayer(projects[0]);
+
+  let mapEngine = null;
+  const initMapEngineAndLayers = () => {
+    mapEngine = new MapEngine('map', projects[0].coords, projects[0].zoom);
+    
+    const selectors = listContainer.querySelectorAll('.showcase-selector');
+    selectors.forEach((selectorCard, index) => {
+      selectorCard.addEventListener('click', () => {
+        listContainer.querySelectorAll('.showcase-selector').forEach(c => {
+          c.classList.remove('active');
+          c.setAttribute('aria-selected', 'false');
+        });
+        selectorCard.classList.add('active');
+        selectorCard.setAttribute('aria-selected', 'true');
+        mapEngine.renderProjectLayer(projects[index]);
+      });
+    });
+
+    mapEngine.renderProjectLayer(projects[0]);
+  };
+
+  const showcaseObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        initMapEngineAndLayers();
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { rootMargin: '200px 0px' });
+
+  showcaseObserver.observe(mapFrame);
 }
 
 /* ==========================================================================

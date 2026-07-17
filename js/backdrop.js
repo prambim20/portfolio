@@ -32,7 +32,12 @@ export class SpatialBackdropEngine {
     for (let i = 0; i < backdropsCount; i++) {
       const layer = document.createElement('div');
       layer.className = 'backdrop-layer';
-      layer.style.backgroundImage = `url('${this.images[i]}')`;
+      
+      if (i === 0) {
+        layer.style.backgroundImage = `url('${this.images[i]}')`;
+      } else {
+        layer.setAttribute('data-src', this.images[i]);
+      }
       
       fragment.appendChild(layer);
       this.layers.push(layer);
@@ -46,7 +51,15 @@ export class SpatialBackdropEngine {
 
     const transition = () => {
       this.layers.forEach((layer, i) => {
-        layer.classList.toggle('active', i === this.activeIdx);
+        const isActive = i === this.activeIdx;
+        if (isActive) {
+          const deferredSrc = layer.getAttribute('data-src');
+          if (deferredSrc) {
+            layer.style.backgroundImage = `url('${deferredSrc}')`;
+            layer.removeAttribute('data-src');
+          }
+        }
+        layer.classList.toggle('active', isActive);
       });
       this.activeIdx = (this.activeIdx + 1) % this.layers.length;
     };
